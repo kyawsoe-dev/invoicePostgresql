@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="icon" href="/images/invoice.png" type="image/x-icon"/>
+  <link rel="stylesheet" href="/stylesheets/invoice.css">
+  <script src="/assets/jquery.js"></script>
+  <script src="/javascripts/invoice.js"></script>
+</head>
+<body>
+  <form id="invoiceForm">
+  <h1>Sales Invoice</h1>
+    <div class="container">
+        <label for="customer_name">Customer Name :</label>
+        <input type="text" name="customer_name" placeholder="Enter Customer Name">
+        <label for="customer_phone">Customer Phone :</label>
+        <input type="text" name="customer_phone" placeholder="Enter Customer Phone"> <br><br>
+        <label for="customer_email">Customer Email :</label>
+        <input type="text" name="customer_email" placeholder="Enter Customer Email">
+        <label for="customer_address">Customer Address :</label>
+        <input type="text" name="customer_address" placeholder="Enter Customer Address">
+    </div>
+  
+    <h2>Stock List</h2>
+    <input type="button" class="btn add_button" value="ADD">  
+    <table>
+      <thead>
+        <tr>
+          <th>Stock Code</th>
+          <th>Stock Description</th>
+          <th>Stock Price</th>
+          <th>Stock Quantity</th>
+          <th>Amount</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody  id="stockList">
+        
+      </tbody>
+    </table>
+    <div class="total">Total Amount: <span id="totalAmount">0</span></div>
+    <input type="hidden" name="total_amount" value="0">
+    <br>
+    <input type="submit" class="btn" id="btnSubmit" name="btnSubmit" value="SAVE">
+  </form>
+  <div class="success-message" style="display: none;">Invoice saved successfully!</div>
+  </body>
+</html>
