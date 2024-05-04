@@ -4,9 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><%= title %></title>
+  <link rel="icon" href="/images/invoice.png" type="image/x-icon"/>
   <link rel="stylesheet" href="/stylesheets/invoice_list.css">
   <link rel="stylesheet" href="/stylesheets/bootstrap.min.css"> 
   <link rel="stylesheet" href="/stylesheets/fontawesome.min.css"> 
+  <link rel="stylesheet" href="/stylesheets/pagination.css">
   <script src="/assets/jquery.js"></script>
   <script src="/javascripts/invoice_list.js"></script>
 </head>
@@ -88,6 +90,7 @@
                         <h4 class="text-center pt-4">No Record Found !!</h4>
                     </div>
                 <% } %>
+                <%- include('../views/components/pagination.ejs') %>
             </div>
         </div>
     </div>

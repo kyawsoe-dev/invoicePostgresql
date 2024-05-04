@@ -1,5 +1,5 @@
 const invoiceModel = require("../model/invoice");
-const ITEMS_PER_PAGE = 12;
+const ITEMS_PER_PAGE = 5;
 
 // GET Invoice Page
 exports.getInvoicePage = async(req, res) => {
@@ -20,21 +20,30 @@ exports.getInvoiceListPage = async (req, res) => {
   }, {});
 
   try {
-    const invoice_list = await invoiceModel.getInvoices(
+    const { invoiceList, totalItems } = await invoiceModel.getInvoices(
       page,
       ITEMS_PER_PAGE,
       filter
-    );
+    ); 
+    console.log(totalItems);
     res.render('invoice_list', {
       title: "Invoice List Page",
-      data: invoice_list,
-      query : req.query
-    })
+      data: invoiceList,
+      query: req.query,
+      currentPage: page,
+      hasNextPage: ITEMS_PER_PAGE * page < totalItems,
+      hasPreviousPage: page > 1,
+      nextPage: page + 1,
+      previousPage: page - 1,
+      perPage: ITEMS_PER_PAGE,
+      lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE)
+    });
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "Internal Server Error" });
   }
-}
+};
+
 
 // GET Invoice List
 exports.getInvoice = async (req, res) => {
@@ -48,12 +57,24 @@ exports.getInvoice = async (req, res) => {
   }, {});
 
   try {
-    const invoice = await invoiceModel.getInvoices(
+    const { invoiceList, totalItems } = await invoiceModel.getInvoices(
       page,
       ITEMS_PER_PAGE,
       filter
-    );
-    res.status(200).json({ message: "Invoice List", data: invoice});
+    ); 
+    console.log(totalItems);
+    res.status(200).json({ 
+      message: "Invoice List", 
+      data: invoiceList,
+      query: req.query,
+      currentPage: page,
+      hasNextPage: ITEMS_PER_PAGE * page < totalItems,
+      hasPreviousPage: page > 1,
+      nextPage: page + 1,
+      previousPage: page - 1,
+      perPage: ITEMS_PER_PAGE,
+      lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE)
+    });
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "Internal Server Error" });
