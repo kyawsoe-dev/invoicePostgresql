@@ -92,7 +92,7 @@ exports.getInvoiceById = async (req, res) => {
     res.status(200).json({ message: "Invoice Data", data: invoiceData });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Internal Server Error" });
+    res.status(500).json({ message: `Error fetching invoice: ${error.message}` });
   }
 };
 
