@@ -16,7 +16,7 @@ class Invoice {
     }
   
     const countQuery = `
-      SELECT COUNT(*) AS total_count
+      SELECT COUNT(DISTINCT tbliv.id) AS total_count
       FROM tbl_invoice tbliv
       INNER JOIN tbl_customer tblcu ON tbliv.customer_id = tblcu.id
       INNER JOIN tbl_invoice_stock tblis ON tbliv.id = tblis.invoice_id
@@ -75,8 +75,8 @@ class Invoice {
     } catch (error) {
       throw new Error(`Error fetching invoices: ${error.message}`);
     }
-  }  
-
+  }
+  
 
 // CREATE Invoice
 static async createInvoice(data) {
