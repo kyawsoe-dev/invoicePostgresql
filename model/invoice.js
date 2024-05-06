@@ -332,8 +332,7 @@ static async createInvoice(data) {
         data.stock_description,
         data.stock_price,
         data.stock_quantity,
-        invoice.id,
-        data.product_id
+        invoice.id
       ];
   
       await sql.query(stockUpdateQuery, stockUpdateParams);

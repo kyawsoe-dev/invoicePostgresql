@@ -122,6 +122,8 @@ exports.postUpdateById = async (req, res) => {
   const id = req.params.id;
   const data = req.body;
 
+  console.log(data, "Update Data");
+
   try {
     const result = await invoiceModel.postUpdateById(id, data);
 
