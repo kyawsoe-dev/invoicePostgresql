@@ -230,126 +230,152 @@ static async createInvoice(data) {
     }
   }
 
-  // POST Edit Invoice
-  static async postUpdateById(id, data) {
-    try {
-      const customerId = await this.findOrCreateCustomer(data);
-      const invoiceData = await this.updateInvoice(id, data, customerId);
-      await this.updateStockAndInvoiceStock(data, invoiceData.invoice);
-  
-      return {
-        invoice: invoiceData.invoice,
-      };
-    } catch (error) {
-      throw new Error(`Error updating invoice: ${error.message}`);
-    }
+// POST Edit Invoice
+static async postUpdateById(id, data) {
+  try {
+    const customerId = await this.findOrCreateCustomer(data);
+    const invoiceData = await this.updateInvoice(id, data, customerId);
+    await this.updateStockAndInvoiceStock(data, invoiceData.invoice);
+    return {
+      invoice: invoiceData.invoice,
+    };
+  } catch (error) {
+    throw new Error(`Error updating invoice: ${error.message}`);
   }
-  
-  static async findOrCreateCustomer(data) {
-    try {
-      const customerCheckQuery = `
-        SELECT id FROM tbl_customer 
-        WHERE customer_name = $1 AND customer_phone = $2 AND customer_email = $3
+}
+
+static async findOrCreateCustomer(data) {
+  try {
+    const customerCheckQuery = `
+      SELECT id FROM tbl_customer 
+      WHERE customer_phone = $1
+    `;
+    const customerCheckParams = [data.customer_phone];
+
+    const customerCheckResult = await sql.query(
+      customerCheckQuery,
+      customerCheckParams
+    );
+    let customerId;
+
+    if (customerCheckResult.rows.length > 1) {
+      const customerInsertQuery = `
+        INSERT INTO tbl_customer 
+        (customer_name, customer_phone, customer_email, customer_address) 
+        VALUES ($1, $2, $3, $4)
+        RETURNING id
       `;
-      const customerCheckParams = [
+      const customerInsertParams = [
         data.customer_name,
         data.customer_phone,
         data.customer_email,
+        data.customer_address,
       ];
-  
-      const customerCheckResult = await sql.query(
-        customerCheckQuery,
-        customerCheckParams
+
+      const customerInsertResult = await sql.query(
+        customerInsertQuery,
+        customerInsertParams
       );
-      let customerId;
-  
-      if (customerCheckResult.rows.length > 0) {
-        customerId = customerCheckResult.rows[0].id;
-      } else {
-        const customerInsertQuery = `
-          INSERT INTO tbl_customer 
-          (customer_name, customer_phone, customer_email, customer_address) 
-          VALUES ($1, $2, $3, $4)
-          RETURNING id
-        `;
-        const customerInsertParams = [
-          data.customer_name,
-          data.customer_phone,
-          data.customer_email,
-          data.customer_address,
-        ];
-  
-        const customerInsertResult = await sql.query(
-          customerInsertQuery,
-          customerInsertParams
-        );
-        customerId = customerInsertResult.rows[0].id;
-      }
-  
-      return customerId;
-    } catch (error) {
-      throw new Error(`Error finding or creating customer: ${error.message}`);
-    }
-  }
-  
-  static async updateInvoice(id, data, customerId) {
-    try {
-      const invoiceUpdateQuery = `
-        UPDATE tbl_invoice 
-        SET invoice_no = $1, total_amount = $2, invoice_date = $3, customer_id = $4
-        WHERE id = $5
-        RETURNING *
+      customerId = customerInsertResult.rows[0].id;
+    } else {
+
+      const customerIdToUpdate = customerCheckResult.rows[0].id;
+      const customerUpdateQuery = `
+        UPDATE tbl_customer 
+        SET customer_name = $1, customer_email = $2, customer_address = $3
+        WHERE id = $4
+        RETURNING id
       `;
-      const invoiceUpdateParams = [
-        data.invoice_no,
-        data.total_amount,
-        new Date().toISOString(),
-        customerId,
-        id,
+      const customerUpdateParams = [
+        data.customer_name,
+        data.customer_email,
+        data.customer_address,
+        customerIdToUpdate,
       ];
-  
-      const invoiceUpdateResult = await sql.query(
-        invoiceUpdateQuery,
-        invoiceUpdateParams
+
+      const customerUpdateResult = await sql.query(
+        customerUpdateQuery,
+        customerUpdateParams
       );
-      const updatedInvoice = invoiceUpdateResult.rows[0];
-  
-      return { invoice: updatedInvoice };
-    } catch (error) {
-      throw new Error(`Error updating invoice: ${error.message}`);
+      customerId = customerUpdateResult.rows[0].id;
     }
+
+    return customerId;
+  } catch (error) {
+    throw new Error(`Error finding or creating customer: ${error.message}`);
   }
-  
-  static async updateStockAndInvoiceStock(data, invoice) {
-    try {
+}
+
+
+static async updateInvoice(id, data, customerId) {
+  try {
+    const invoiceUpdateQuery = `
+      UPDATE tbl_invoice 
+      SET invoice_no = $1, total_amount = $2, invoice_date = $3, customer_id = $4
+      WHERE id = $5
+      RETURNING *
+    `;
+    const invoiceUpdateParams = [
+      data.invoice_no,
+      parseInt(data.total_amount),
+      new Date().toISOString(),
+      customerId,
+      id,
+    ];
+
+    const invoiceUpdateResult = await sql.query(
+      invoiceUpdateQuery,
+      invoiceUpdateParams
+    );
+    const updatedInvoice = invoiceUpdateResult.rows[0];
+
+    return { invoice: updatedInvoice };
+  } catch (error) {
+    throw new Error(`Error updating invoice: ${error.message}`);
+  }
+}
+
+static async updateStockAndInvoiceStock(data, invoice) {
+  try {
+    const stockUpdatePromises = [];
+
+    for (const product of data.stock_data) {
+      console.log(product);
       const stockUpdateQuery = `
         UPDATE tbl_stock 
-        SET stock_code = $1, stock_description = $2, stock_price = $3, stock_quantity = $4, invoice_id = $5
-        WHERE product_id = $6
+        SET stock_code = $1, stock_description = $2, stock_price = $3, stock_quantity = stock_quantity, invoice_id = $5
+        WHERE id = $6
       `;
       const stockUpdateParams = [
-        data.stock_code,
-        data.stock_description,
-        data.stock_price,
-        data.stock_quantity,
-        invoice.id
+        product.stock_code,
+        product.stock_description,
+        product.stock_price,
+        product.stock_quantity,
+        invoice.id,
+        product.stock_id,
       ];
-  
-      await sql.query(stockUpdateQuery, stockUpdateParams);
-  
-      for (const product of data.stock_data) {
-        const invoiceStockInsertQuery = `
-          INSERT INTO tbl_invoice_stock (invoice_id, product_id, quantity)
-          VALUES ($1, $2, $3)
-        `;
-        const invoiceStockInsertParams = [invoice.id, product.product_id, product.quantity];
-  
-        await sql.query(invoiceStockInsertQuery, invoiceStockInsertParams);
-      }
-    } catch (error) {
-      throw new Error(`Error updating stock and invoice-stock: ${error.message}`);
+
+      stockUpdatePromises.push(sql.query(stockUpdateQuery, stockUpdateParams));
     }
-  }  
+
+    await Promise.all(stockUpdatePromises);
+
+    const invoiceStockUpdateQuery = `
+      UPDATE tbl_invoice_stock 
+      SET stock_id = $1
+      WHERE invoice_id = $2
+    `;
+    const invoiceStockUpdateParams = [invoice.id, invoice.id];
+
+    await sql.query(invoiceStockUpdateQuery, invoiceStockUpdateParams);
+  } catch (error) {
+    throw new Error(`Error updating stock and invoice-stock: ${error.message}`);
+  }
+}
+
+
+
+
   // DELETE Invoice
   static async deleteInvoiceById(id) {
     const query = `
