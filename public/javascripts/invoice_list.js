@@ -104,3 +104,51 @@ function printModalContent() {
     window.print();
     document.body.innerHTML = originalContents;
 }
+
+
+$(document).on("click", ".btnDelete", function () {
+    var id = $(this).data("id");
+    console.log(id);
+    Swal.fire({
+      title: "Are you sure?",
+      text: "Want to Delete This !!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, Delete!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        $.ajax({
+          url: `/api/invoice/delete/${id}`,
+          type: "DELETE",
+          success: function (response) {
+            Swal.fire({
+              icon: "success",
+              title: "Deleted !!",
+              showConfirmButton: false,
+              timer: 1500,
+            }).then((result) => {
+              if (result.dismiss === Swal.DismissReason.timer) {
+                window.location.reload();
+              }
+            });
+          },
+          error: function (error) {
+            Swal.fire({
+              icon: "error",
+              title: "Oops...",
+              text: "Something went wrong!",
+            });
+          },
+        });
+      }
+    }).catch((error) => {
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "Something went wrong!",
+      });
+    });
+  });
+  
