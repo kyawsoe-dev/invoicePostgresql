@@ -4,6 +4,10 @@
             <li class="page-item">
                 <a class="page-link" href="?page=<%= currentPage - 1 %>">Previous</a>
             </li>
+        <% } else { %>
+            <li class="page-item disabled">
+                <span class="page-link">Previous</span>
+            </li>
         <% } %>
         <% if (currentPage !== 1 && previousPage !== 1) { %>
             <li class="page-item">
@@ -31,6 +35,10 @@
         <% if (currentPage < lastPage) { %>
             <li class="page-item">
                 <a class="page-link" href="?page=<%= currentPage + 1 %>">Next</a>
+            </li>
+        <% } else { %>
+            <li class="page-item disabled">
+                <span class="page-link">Next</span>
             </li>
         <% } %>
     </ul>

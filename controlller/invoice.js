@@ -1,5 +1,5 @@
 const invoiceModel = require("../model/invoice");
-const ITEMS_PER_PAGE = 5;
+const ITEMS_PER_PAGE = 10;
 
 // GET Invoice Page
 exports.getInvoicePage = async(req, res) => {

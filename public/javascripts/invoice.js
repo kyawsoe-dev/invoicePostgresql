@@ -58,7 +58,7 @@ $(document).ready(function() {
         window.location.href = 'https://crudinvoicepostgresql.onrender.com/api/invoice/listpage';
       },
       error: function(xhr, status, error) {
-        console.error('Error submitting form data:', error);
+        console.error('Error submitting form data:', error);  
       }
     });
   });

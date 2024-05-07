@@ -10,92 +10,101 @@
   <link rel="stylesheet" href="/stylesheets/fontawesome.min.css"> 
   <link rel="stylesheet" href="/stylesheets/pagination.css">
   <script src="/assets/jquery.js"></script>
+  <script src="/javascripts/bootstrap.min.js"></script>
   <script src="/javascripts/invoice_list.js"></script>
 </head>
 <body>
-<div class="page-content container">
+<div>
     <div class="container px-0">
-        <div class="row mt-4">
+        <div class="row">
             <div class="col-12 col-lg-12">
-              <h2>Invoice List</h2>
-              <a href="https://crudinvoicepostgresql.onrender.com/api/invoice/listpage">Clear Filter</a>
-              <!-- <a href="localhost:3001/api/invoice/listpage">Clear Filter</a> -->
-              <form id="searchForm">
-                <input type="search" name="search" id="searchInput" placeholder="Enter Search Input" value="<%= query.search %>">
-              </form>
-              <% if(data && data.length > 0) { %>
-                <% data.forEach((invoice, index) => { %>
-                <hr class="row brc-default-l1 mx-n1 mb-4" />
-
-                <div class="row">
-                    <div class="col-sm-6 text-grey-m2">
-                      <div class="my-1"><i class="fa fa-circle text-blue-m2 text-xs"></i> <span class="text-600 text-90">Customer Name: </span> <%= invoice.customer_name %></div>
-                      <div class="my-1"><i class="fa fa-circle text-blue-m2 text-xs"></i> <span class="text-600 text-90">Customer Phone: </span> <%= invoice.customer_phone %></div>
-                      <div class="my-1"><i class="fa fa-circle text-blue-m2 text-xs"></i> <span class="text-600 text-90">Customer Email: </span> <%= invoice.customer_email %></div>
-                      <div class="my-1"><i class="fa fa-circle text-blue-m2 text-xs"></i> <span class="text-600 text-90">Customer Address: </span> <%= invoice.customer_address %></div>
-                    </div>
-                    <!-- /.col -->
-
-                    <div class="text-95 col-sm-6 align-self-start d-sm-flex justify-content-end">
-                        <hr class="d-sm-none" />
-                        <div class="text-grey-m2">
-
-                          <div class="my-2"><i class="fa fa-circle text-blue-m2 text-xs mr-1"></i> <span class="text-600 text-90">No: </span> <%= ++index %></div>
-
-                            <div class="my-2"><i class="fa fa-circle text-blue-m2 text-xs mr-1"></i> <span class="text-600 text-90">Invoice ID: </span> <%= invoice.invoice_id %></div>
-
-                            <div class="my-2"><i class="fa fa-circle text-blue-m2 text-xs mr-1"></i> <span class="text-600 text-90">Invoice No: </span><%= invoice.invoice_no %></div>
-
-                            <div class="my-2"><i class="fa fa-circle text-blue-m2 text-xs mr-1"></i> <span class="text-600 text-90">Invoice Date: </span><%= invoice.invoice_date %></div>
-                        </div>
-                    </div>
+              <h2 class="pt-1">Invoice List</h2>
+                <div class="header-container">
+                    <a href="https://crudinvoicepostgresql.onrender.com/api/invoice/listpage">Clear Filter</a>
+                    <!-- <a href="http://localhost:3001/api/invoice/listpage" id="clearFilter">Clear Filter</a> -->
+                    <form id="searchForm">
+                        <input type="search" name="search" id="searchInput" placeholder="Enter Search Input" value="<%= query.search %>">
+                    </form>
                 </div>
-
-                <div class="mt-4">
-                  <div class="row text-600 text-white bgc-default-tp1 py-25">
-                      <div class="d-none d-sm-block col-1">#</div>
-                      <div class="col-3">Stock Code</div>
-                      <div class="d-none d-sm-block col-2">Stock Price</div>
-                      <div class="col-2">Stock Quantity</div>
-                      <div class="col-2">Amount</div>
-                      <div class="d-none d-sm-block">Stock Description</div> 
-                  </div>
-                  <% let totalAmount = 0; %>
-                  <% invoice.stock_items.forEach((stock, i) => { %>
-                      <% totalAmount += stock.stock_price * stock.stock_quantity; %>
-                      <div class="text-95 text-secondary-d3">
-                          <div class="row mb-2 mb-sm-0 py-25">
-                              <div class="d-none d-sm-block col-1"><%= ++i %></div>
-                              <div class="col-3"><%= stock.stock_code %></div>
-                              <div class="d-none d-sm-block col-2"><%= stock.stock_price %></div>
-                              <div class="col-2 text-secondary-d2"><%= stock.stock_quantity %></div>
-                              <div class="col-2 text-secondary-d2"><%= stock.stock_price * stock.stock_quantity %></div>
-                              <div class="d-none d-sm-block col-2"><%= stock.stock_description %></div>
-                          </div>
-                      </div>
-                      <div class="row border-b-2 brc-default-l2"></div>
-                      <hr class="row brc-default-l1 mx-n1 mb-2" />
-
-                  <% }); %>
-                  <div class="text-95 text-secondary-d3 mt-3">
-                      <div class="row py-25">
-                          <div class="col-4"></div>
-                          <div class="col-4 text-120 text-right">Total Amount:</div>
-                          <div class="col-4 text-120"><%= totalAmount %></div>
-                      </div>
-                  </div>
-              </div>
-              
-                <% }); %>
-                <% }else { %>
-                    <div class="row">
-                        <h4 class="text-center pt-4">No Record Found !!</h4>
-                    </div>
-                <% } %>
+                    <table>
+                        <thead>
+                          <tr>
+                            <th>#</th>
+                            <th style="width: 120px;">Invoice No</th>
+                            <th>Customer Name</th>
+                            <th>Customer Phone</th>
+                            <th>Customer Email</th>
+                            <th>Customer Address</th>
+                            <th>Invoice Date</th>
+                            <th>Total Amount</th>
+                            <th>Action</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <% if(data && data.length > 0) { %>
+                            <% data.forEach((invoice, index) => {  
+                                var value = invoice.total_amount;
+                                var valueStr = value.toString();
+                                var splitValues = [];
+                                while (valueStr) {
+                                    splitValues.unshift(valueStr.slice(-3));
+                                    valueStr = valueStr.slice(0, -3);
+                                }
+                                var split_total_amount = splitValues.join(',');    
+                            %>
+                                
+                              <tr>
+                                <td><%= ++index %></td>
+                                <td><%= invoice.invoice_no %></td>
+                                <td><%= invoice.customer_name %></td>
+                                <td><%= invoice.customer_phone %></td>
+                                <td><%= invoice.customer_email %></td>
+                                <td><%= invoice.customer_address %></td>
+                                <td><%= invoice.invoice_date %></td>
+                                <td><%= split_total_amount %></td>
+                                <td>
+                                <button type="button" class="btn btn-icon btn-md btnView" id="btnView" data-id="<%= invoice.invoice_id %>" data-toggle="modal" data-target="#invoiceViewModal" title="View Details">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-fill" viewBox="0 0 16 16">
+                                        <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0"/>
+                                        <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8m8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7"/>
+                                    </svg>
+                                </button>
+                                </td>
+                              </tr>
+                            <% }); %>
+                          <% } else { %>
+                            <tr>
+                              <td colspan="8">No data available</td>
+                            </tr>
+                          <% } %>
+                        </tbody>
+                      </table>
+                        <!-- Modal -->
+                        <div id="invoiceViewModal" class="modal animated fadeIn bs-example-modal-lg bs-example-modal-center ml-5" tabindex="-1" role="dialog" aria-hidden="true">
+                            <div class="modal-dialog modal-xl modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header justify-content-between bg-white">
+                                        <h5 class="page-title text-dark">Invoice Detail View</h5>
+                                        <button class="btnPrint" id="btnPrint">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-printer-fill" viewBox="0 0 16 16">
+                                            <path d="M5 1a2 2 0 0 0-2 2v1h10V3a2 2 0 0 0-2-2zm6 8H5a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1"/>
+                                            <path d="M0 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-1v-2a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v2H2a2 2 0 0 1-2-2zm2.5 1a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1"/>
+                                          </svg>
+                                        </button>
+                                        <p data-dismiss="modal" aria-label="Close"><span class="text-dark" aria-hidden="true">&times;</span></p>
+                                    </div>
+                                    <div class="modal-body" id="modal-body"> 
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- /.Modal -->
                 <%- include('../views/components/pagination.ejs') %>
             </div>
         </div>
     </div>
 </div>
+
 </body>
 </html>
