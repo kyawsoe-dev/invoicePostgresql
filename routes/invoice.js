@@ -8,6 +8,8 @@ router.get('/listpage', invoiceController.getInvoiceListPage);
 
 // for API
 router.get('/list', invoiceController.getInvoice);
+router.get('/exportcsv', invoiceController.exportCSV);
+router.post('/importcsv', invoiceController.importCSV);
 router.post('/create', invoiceController.createInvoice);
 router.get('/edit/:id', invoiceController.getInvoiceById);
 router.put('/edit/:id', invoiceController.postUpdateById);

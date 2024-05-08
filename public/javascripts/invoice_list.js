@@ -187,7 +187,6 @@ $(document).on("click", ".btnDelete", function () {
                     $("tbody").append(newRow);
                 });
 
-
                 $("#stockList").show();
                 $(".total").show();
                 $("#btnSubmit").show();
@@ -238,6 +237,7 @@ $(document).on("click", ".btnDelete", function () {
 });
 
 
+
 $(document).on("click", "#btnUpdate", function () {
   let invoiceId = $('#invoice_id').val();
   if (!invoiceId) {
@@ -253,8 +253,8 @@ $(document).on("click", "#btnUpdate", function () {
     contentType: 'application/json',
     success: function (response) {
       console.log('Form data updated successfully:', response);
-      window.location.href = 'http://localhost:3001/api/invoice/listpage';
-      // window.location.href = 'https://crudinvoicepostgresql.onrender.com/api/invoice/listpage';
+      // window.location.href = 'http://localhost:3001/api/invoice/listpage';
+      window.location.href = 'https://crudinvoicepostgresql.onrender.com/api/invoice/listpage';
     },
     error: function (xhr, status, error) {
       console.error('Error updating form data:', error);
@@ -291,3 +291,25 @@ function getUpdatedFormData() {
 
   return formData;
 }
+
+
+$(document).ready(function() {
+  $('#csvUploadForm').submit(function(e) {
+    e.preventDefault();
+
+    var formData = new FormData(this);
+    $.ajax({
+      url: $(this).attr('action'),
+      type: 'POST',
+      data: formData,
+      contentType: false,
+      processData: false,
+      success: function(response) {
+        window.location.reload();
+      },
+      error: function(xhr, status, error) {
+        console.error('Error uploading file:', error);
+      }
+    });
+  });
+});

@@ -154,3 +154,123 @@ exports.deleteInvoiceById = async (req, res) => {
     res.status(500).json({ message: errorMessage });
   }
 };
+
+
+
+const { createObjectCsvWriter } = require('csv-writer');
+const today = `${new Date().toISOString().slice(0, 10)}_${new Date().getTime()}`;
+const csvWriter = createObjectCsvWriter({
+  path: `${today}_invoicelist.csv`,
+  header: [
+    { id: 'invoice_id', title: 'Invoice ID' },
+    { id: 'invoice_no', title: 'Invoice Number' },
+    { id: 'total_amount', title: 'Total Amount' },
+    { id: 'invoice_date', title: 'Invoice Date' },
+    { id: 'customer_id', title: 'Customer ID' },
+    { id: 'customer_name', title: 'Customer Name' },
+    { id: 'customer_phone', title: 'Customer Phone' },
+    { id: 'customer_email', title: 'Customer Email' },
+    { id: 'customer_address', title: 'Customer Address' },
+    { id: 'stock_id', title: 'Stock ID' },
+    { id: 'stock_code', title: 'Stock Code' },
+    { id: 'stock_description', title: 'Stock Description' },
+    { id: 'stock_price', title: 'Stock Price' },
+    { id: 'stock_quantity', title: 'Stock Quantity' }
+  ]
+});
+
+exports.exportCSV = async (req, res) => {
+  try {
+    const invoiceList = await invoiceModel.exportCSV();
+    const flattenedData = [];
+    invoiceList.forEach(invoice => {
+      invoice.stock_items.forEach(stockItem => {
+        flattenedData.push({
+          invoice_id: invoice.invoice_id,
+          invoice_no: invoice.invoice_no,
+          total_amount: invoice.total_amount,
+          invoice_date: invoice.invoice_date,
+          customer_id: invoice.customer_id,
+          customer_name: invoice.customer_name,
+          customer_phone: invoice.customer_phone,
+          customer_email: invoice.customer_email,
+          customer_address: invoice.customer_address,
+          stock_id: stockItem.stock_id,
+          stock_code: stockItem.stock_code,
+          stock_description: stockItem.stock_description,
+          stock_price: stockItem.stock_price,
+          stock_quantity: stockItem.stock_quantity
+        });
+      });
+    });
+    await csvWriter.writeRecords(flattenedData);
+    res.status(200).download(`${today}_invoicelist.csv`);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+
+// import csv
+const multer = require('multer');
+const csv = require('csv-parser');
+const fs = require('fs');
+const middleware = require('../helper/upload_middleware').csvUpload;
+
+exports.importCSV = [middleware.single('file'), async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ message: 'No file uploaded' });
+        }
+
+        const results = [];
+        fs.createReadStream(req.file.path)
+            .pipe(csv())
+            .on('data', async (data) => {
+                try {
+                    const totalAmount = parseInt(data['Total Amount'], 10);
+                    const stockPrice = parseInt(data['Stock Price'], 10);
+                    const stockQuantity = parseInt(data['Stock Quantity'], 10);
+
+                    if (isNaN(totalAmount) || isNaN(stockPrice) || isNaN(stockQuantity)) {
+                        throw new Error('Invalid numeric value in CSV');
+                    }
+
+                    const invoiceData = {
+                        total_amount: totalAmount,
+                        customer_name: data['Customer Name'],
+                        customer_phone: data['Customer Phone'],
+                        customer_email: data['Customer Email'],
+                        customer_address: data['Customer Address'],
+                        stock_data: [
+                            {
+                                stock_code: data['Stock Code'],
+                                stock_description: data['Stock Description'],
+                                stock_price: stockPrice,
+                                stock_quantity: stockQuantity
+                            }
+                        ]
+                    };
+                    const importedData = await invoiceModel.importCSV(invoiceData);
+                    results.push(importedData);
+                } catch (error) {
+                    console.error(`Error importing CSV data: ${error.message}`);
+                }
+            })
+            .on('end', () => {
+                console.log('CSV file successfully Imported');
+                res.status(200).json({
+                  message: "CSV File Successfully Imported"
+                });
+            });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+}];
+
+
+
+
+

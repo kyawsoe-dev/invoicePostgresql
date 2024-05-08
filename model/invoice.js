@@ -414,6 +414,7 @@ static async deleteExistingStockAndInvoiceStock(invoiceId) {
       WHERE invoice_id = $1
     `;
     const stockIdsResult = await sql.query(getStockIdsQuery, [invoiceId]);
+    console.log(stockIdsResult);
     const stockIds = stockIdsResult.rows.map(row => row.id);
 
     // Delete stock entries
@@ -495,7 +496,164 @@ static async deleteInvoiceById(id) {
     throw new Error(`Error deleting invoice: ${error.message}`);
   }
 }
-  
+
+
+// export CSV
+static async exportCSV() {
+  const invoicesQuery = `
+    SELECT 
+      tbliv.id AS invoice_id, 
+      tbliv.invoice_no,
+      tbliv.total_amount, 
+      TO_CHAR(tbliv.invoice_date, 'DD-MM-YYYY HH12PM') AS invoice_date,
+      tblcu.id AS customer_id,
+      tblcu.customer_name, 
+      tblcu.customer_phone,
+      tblcu.customer_email, 
+      tblcu.customer_address,
+      JSON_AGG(
+        JSON_BUILD_OBJECT(
+          'stock_id', tbls.id,
+          'stock_code', tbls.stock_code,
+          'stock_description', tbls.stock_description,
+          'stock_price', tbls.stock_price,
+          'stock_quantity', tbls.stock_quantity
+        )
+      ) AS stock_items
+    FROM tbl_invoice tbliv
+    INNER JOIN tbl_customer tblcu ON tbliv.customer_id = tblcu.id
+    INNER JOIN tbl_invoice_stock tblis ON tbliv.id = tblis.invoice_id
+    INNER JOIN tbl_stock tbls ON tblis.stock_id = tbls.id
+    GROUP BY 
+      tbliv.id,
+      tbliv.invoice_no,
+      tbliv.total_amount,
+      tbliv.invoice_date,
+      tblcu.id,
+      tblcu.customer_name,
+      tblcu.customer_phone,
+      tblcu.customer_email,
+      tblcu.customer_address
+      ORDER BY tbliv.invoice_date DESC
+  `;
+
+  try {
+    const invoicesResult = await sql.query(invoicesQuery);
+    const invoiceList = invoicesResult.rows;
+    console.log(invoiceList[0].stock_items)
+    return invoiceList;
+  } catch (error) {
+    throw new Error(`Error fetching invoices: ${error.message}`);
   }
+}
+
+
+//import CSV
+static async importCSV(data) {
+  try {
+    const customerCheckQuery = `
+          SELECT id FROM tbl_customer 
+          WHERE customer_name = $1 AND customer_phone = $2 AND customer_email = $3
+        `;
+    const customerCheckParams = [
+      data.customer_name,
+      data.customer_phone,
+      data.customer_email,
+    ];
+
+    const customerCheckResult = await sql.query(
+      customerCheckQuery,
+      customerCheckParams
+    );
+    let customerId;
+
+    if (customerCheckResult.rows.length > 0) {
+      customerId = customerCheckResult.rows[0].id;
+    } else {
+      const customerInsertQuery = `
+            INSERT INTO tbl_customer 
+            (customer_name, customer_phone, customer_email, customer_address) 
+            VALUES ($1, $2, $3, $4)
+            RETURNING id
+          `;
+      const customerInsertParams = [
+        data.customer_name,
+        data.customer_phone,
+        data.customer_email,
+        data.customer_address,
+      ];
+
+      const customerInsertResult = await sql.query(
+        customerInsertQuery,
+        customerInsertParams
+      );
+      customerId = customerInsertResult.rows[0].id;
+    }
+
+    const invoiceInsertQuery = `
+          INSERT INTO tbl_invoice 
+          (invoice_no, total_amount, invoice_date, customer_id) 
+          VALUES ($1, $2, $3, $4)
+          RETURNING *
+        `;
+    const invoiceInsertParams = [
+      `Invoice-${String(Math.floor(100 + Math.random() * 900)).padStart(3, "0")}`,
+      parseInt(data.total_amount),
+      new Date().toISOString(),
+      customerId,
+    ];
+
+    const invoiceInsertResult = await sql.query(
+      invoiceInsertQuery,
+      invoiceInsertParams
+    );
+    const insertedInvoice = invoiceInsertResult.rows[0];
+
+    const invoices = [];
+
+    for (const stockData of data.stock_data) {
+      const stockInsertQuery = `
+            INSERT INTO tbl_stock 
+            (stock_code, stock_description, stock_price, stock_quantity, invoice_id) 
+            VALUES ($1, $2, $3, $4, $5) -- Added $5 for invoice_id
+            RETURNING id
+          `;
+      const stockInsertParams = [
+        stockData.stock_code,
+        stockData.stock_description,
+        stockData.stock_price,
+        stockData.stock_quantity,
+        insertedInvoice.id,
+      ];
+
+      const stockInsertResult = await sql.query(
+        stockInsertQuery,
+        stockInsertParams
+      );
+      const stockId = stockInsertResult.rows[0].id;
+
+      const stockInvoiceInsertQuery = `
+            INSERT INTO tbl_invoice_stock 
+            (invoice_id, stock_id) 
+            VALUES ($1, $2)
+          `;
+      const stockInvoiceInsertParams = [insertedInvoice.id, stockId];
+
+      await sql.query(stockInvoiceInsertQuery, stockInvoiceInsertParams);
+
+      invoices.push({
+        invoice: insertedInvoice,
+        stock: stockData,
+      });
+    }
+
+    return { invoices };
+  } catch (error) {
+    throw new Error(`Error creating invoice: ${error.message}`);
+  }
+}
+
+
+}
 
 module.exports = Invoice;

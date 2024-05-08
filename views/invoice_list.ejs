@@ -28,93 +28,124 @@
                         <input type="search" name="search" id="searchInput" placeholder="Enter Search Input" value="<%= query.search %>">
                     </form>
                 </div>
-                    <table>
-                        <thead>
-                          <tr>
-                            <th>#</th>
-                            <th style="width: 120px;">Invoice No</th>
-                            <th>Customer Name</th>
-                            <th>Customer Phone</th>
-                            <th>Customer Email</th>
-                            <th>Customer Address</th>
-                            <th>Invoice Date</th>
-                            <th>Total Amount</th>
-                            <th style="width: 165px;">Action</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <% if(data && data.length > 0) { %>
-                            <% data.forEach((invoice, index) => {  
-                                var value = invoice.total_amount;
-                                var valueStr = value.toString();
-                                var splitValues = [];
-                                while (valueStr) {
-                                    splitValues.unshift(valueStr.slice(-3));
-                                    valueStr = valueStr.slice(0, -3);
-                                }
-                                var split_total_amount = splitValues.join(',');    
-                            %>
+                <a href="/api/invoice/exportcsv" class="btn btn-md btn-secondary mb-1 exportCSV">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-filetype-csv" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M14 4.5V14a2 2 0 0 1-2 2h-1v-1h1a1 1 0 0 0 1-1V4.5h-2A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v9H2V2a2 2 0 0 1 2-2h5.5zM3.517 14.841a1.13 1.13 0 0 0 .401.823q.195.162.478.252.284.091.665.091.507 0 .859-.158.354-.158.539-.44.187-.284.187-.656 0-.336-.134-.56a1 1 0 0 0-.375-.357 2 2 0 0 0-.566-.21l-.621-.144a1 1 0 0 1-.404-.176.37.37 0 0 1-.144-.299q0-.234.185-.384.188-.152.512-.152.214 0 .37.068a.6.6 0 0 1 .246.181.56.56 0 0 1 .12.258h.75a1.1 1.1 0 0 0-.2-.566 1.2 1.2 0 0 0-.5-.41 1.8 1.8 0 0 0-.78-.152q-.439 0-.776.15-.337.149-.527.421-.19.273-.19.639 0 .302.122.524.124.223.352.367.228.143.539.213l.618.144q.31.073.463.193a.39.39 0 0 1 .152.326.5.5 0 0 1-.085.29.56.56 0 0 1-.255.193q-.167.07-.413.07-.175 0-.32-.04a.8.8 0 0 1-.248-.115.58.58 0 0 1-.255-.384zM.806 13.693q0-.373.102-.633a.87.87 0 0 1 .302-.399.8.8 0 0 1 .475-.137q.225 0 .398.097a.7.7 0 0 1 .272.26.85.85 0 0 1 .12.381h.765v-.072a1.33 1.33 0 0 0-.466-.964 1.4 1.4 0 0 0-.489-.272 1.8 1.8 0 0 0-.606-.097q-.534 0-.911.223-.375.222-.572.632-.195.41-.196.979v.498q0 .568.193.976.197.407.572.626.375.217.914.217.439 0 .785-.164t.55-.454a1.27 1.27 0 0 0 .226-.674v-.076h-.764a.8.8 0 0 1-.118.363.7.7 0 0 1-.272.25.9.9 0 0 1-.401.087.85.85 0 0 1-.478-.132.83.83 0 0 1-.299-.392 1.7 1.7 0 0 1-.102-.627zm8.239 2.238h-.953l-1.338-3.999h.917l.896 3.138h.038l.888-3.138h.879z"/>
+                  </svg>
+                  Export CSV
+                </a>
+                <a href="javascript:void(0)" type="button" class="btn btn-md btn-secondary mb-1 importCSVModal" id="btnCSVImport" data-toggle="modal" data-target="#importCSVModal" title="Import CSV">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-filetype-csv" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd" d="M14 4.5V14a2 2 0 0 1-2 2h-1v-1h1a1 1 0 0 0 1-1V4.5h-2A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v9H2V2a2 2 0 0 1 2-2h5.5zM3.517 14.841a1.13 1.13 0 0 0 .401.823q.195.162.478.252.284.091.665.091.507 0 .859-.158.354-.158.539-.44.187-.284.187-.656 0-.336-.134-.56a1 1 0 0 0-.375-.357 2 2 0 0 0-.566-.21l-.621-.144a1 1 0 0 1-.404-.176.37.37 0 0 1-.144-.299q0-.234.185-.384.188-.152.512-.152.214 0 .37.068a.6.6 0 0 1 .246.181.56.56 0 0 1 .12.258h.75a1.1 1.1 0 0 0-.2-.566 1.2 1.2 0 0 0-.5-.41 1.8 1.8 0 0 0-.78-.152q-.439 0-.776.15-.337.149-.527.421-.19.273-.19.639 0 .302.122.524.124.223.352.367.228.143.539.213l.618.144q.31.073.463.193a.39.39 0 0 1 .152.326.5.5 0 0 1-.085.29.56.56 0 0 1-.255.193q-.167.07-.413.07-.175 0-.32-.04a.8.8 0 0 1-.248-.115.58.58 0 0 1-.255-.384zM.806 13.693q0-.373.102-.633a.87.87 0 0 1 .302-.399.8.8 0 0 1 .475-.137q.225 0 .398.097a.7.7 0 0 1 .272.26.85.85 0 0 1 .12.381h.765v-.072a1.33 1.33 0 0 0-.466-.964 1.4 1.4 0 0 0-.489-.272 1.8 1.8 0 0 0-.606-.097q-.534 0-.911.223-.375.222-.572.632-.195.41-.196.979v.498q0 .568.193.976.197.407.572.626.375.217.914.217.439 0 .785-.164t.55-.454a1.27 1.27 0 0 0 .226-.674v-.076h-.764a.8.8 0 0 1-.118.363.7.7 0 0 1-.272.25.9.9 0 0 1-.401.087.85.85 0 0 1-.478-.132.83.83 0 0 1-.299-.392 1.7 1.7 0 0 1-.102-.627zm8.239 2.238h-.953l-1.338-3.999h.917l.896 3.138h.038l.888-3.138h.879z"/>
+                </svg>
+                Import CSV
+              </a>
+              <table>
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th style="width: 120px;">Invoice No</th>
+                      <th>Customer Name</th>
+                      <th>Customer Phone</th>
+                      <th>Customer Email</th>
+                      <th>Customer Address</th>
+                      <th>Invoice Date</th>
+                      <th>Total Amount</th>
+                      <th style="width: 165px;">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% if(data && data.length > 0) { %>
+                      <% data.forEach((invoice, index) => {  
+                          var value = invoice.total_amount;
+                          var valueStr = value.toString();
+                          var splitValues = [];
+                          while (valueStr) {
+                              splitValues.unshift(valueStr.slice(-3));
+                              valueStr = valueStr.slice(0, -3);
+                          }
+                          var split_total_amount = splitValues.join(',');    
+                      %>
+                          
+                        <tr>
+                          <td><%= ++index %></td>
+                          <td><%= invoice.invoice_no %></td>
+                          <td><%= invoice.customer_name %></td>
+                          <td><%= invoice.customer_phone %></td>
+                          <td><%= invoice.customer_email %></td>
+                          <td><%= invoice.customer_address %></td>
+                          <td><%= invoice.invoice_date %></td>
+                          <td><%= split_total_amount %></td>
+                          <td>
+                          <button type="button" class="btn btn-icon btn-md btnView" id="btnView" data-id="<%= invoice.invoice_id %>" data-toggle="modal" data-target="#invoiceViewModal" title="View Detail">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-fill" viewBox="0 0 16 16">
+                                  <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0"/>
+                                  <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8m8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7"/>
+                              </svg>
+                          </button>
+
+                          <button type="button" class="btn btn-icon btn-md btnEdit" id="btnEdit" data-id="<%= invoice.invoice_id %>" title="Edit Invoice">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                              <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+                              <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/>
+                            </svg>
+                        </button>
+
+                          <button type="button" class="btn btn-icon btn-md btnDelete" data-id="<%= invoice.invoice_id %>" title="Delete Invoice">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3-fill" viewBox="0 0 16 16">
+                              <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5m-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5M4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06m6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528M8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5"/>
+                            </svg>
+                          </button>
+                          </td>
+                        </tr>
+                      <% }); %>
+                    <% } else { %>
+                      <tr>
+                        <td colspan="9">No data available</td>
+                      </tr>
+                    <% } %>
+                  </tbody>
+                </table>
+                <!-- Modal -->
+                <div id="invoiceViewModal" class="modal animated fadeIn bs-example-modal-lg bs-example-modal-center ml-5" tabindex="-1" role="dialog" aria-hidden="true">
+                    <div class="modal-dialog modal-xl modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header justify-content-between bg-white">
+                                <h5 class="page-title text-dark">Invoice Detail View</h5>
+                                <button class="btnPrint" id="btnPrint">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-printer-fill" viewBox="0 0 16 16">
+                                    <path d="M5 1a2 2 0 0 0-2 2v1h10V3a2 2 0 0 0-2-2zm6 8H5a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1"/>
+                                    <path d="M0 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-1v-2a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v2H2a2 2 0 0 1-2-2zm2.5 1a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1"/>
+                                  </svg>
+                                </button>
+                                <p data-dismiss="modal" aria-label="Close"><span class="text-dark" aria-hidden="true">&times;</span></p>
+                            </div>
+                            <div class="modal-body" id="modal-body"> 
                                 
-                              <tr>
-                                <td><%= ++index %></td>
-                                <td><%= invoice.invoice_no %></td>
-                                <td><%= invoice.customer_name %></td>
-                                <td><%= invoice.customer_phone %></td>
-                                <td><%= invoice.customer_email %></td>
-                                <td><%= invoice.customer_address %></td>
-                                <td><%= invoice.invoice_date %></td>
-                                <td><%= split_total_amount %></td>
-                                <td>
-                                <button type="button" class="btn btn-icon btn-md btnView" id="btnView" data-id="<%= invoice.invoice_id %>" data-toggle="modal" data-target="#invoiceViewModal" title="View Detail">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-fill" viewBox="0 0 16 16">
-                                        <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0"/>
-                                        <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8m8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7"/>
-                                    </svg>
-                                </button>
-
-                                <button type="button" class="btn btn-icon btn-md btnEdit" id="btnEdit" data-id="<%= invoice.invoice_id %>" title="Edit Invoice">
-                                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
-                                    <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
-                                    <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/>
-                                  </svg>
-                              </button>
-
-                                <button type="button" class="btn btn-icon btn-md btnDelete" data-id="<%= invoice.invoice_id %>" title="Delete Invoice">
-                                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3-fill" viewBox="0 0 16 16">
-                                    <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5m-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5M4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06m6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528M8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5"/>
-                                  </svg>
-                                </button>
-                                </td>
-                              </tr>
-                            <% }); %>
-                          <% } else { %>
-                            <tr>
-                              <td colspan="9">No data available</td>
-                            </tr>
-                          <% } %>
-                        </tbody>
-                      </table>
-                        <!-- Modal -->
-                        <div id="invoiceViewModal" class="modal animated fadeIn bs-example-modal-lg bs-example-modal-center ml-5" tabindex="-1" role="dialog" aria-hidden="true">
-                            <div class="modal-dialog modal-xl modal-dialog-centered">
-                                <div class="modal-content">
-                                    <div class="modal-header justify-content-between bg-white">
-                                        <h5 class="page-title text-dark">Invoice Detail View</h5>
-                                        <button class="btnPrint" id="btnPrint">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-printer-fill" viewBox="0 0 16 16">
-                                            <path d="M5 1a2 2 0 0 0-2 2v1h10V3a2 2 0 0 0-2-2zm6 8H5a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1"/>
-                                            <path d="M0 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-1v-2a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v2H2a2 2 0 0 1-2-2zm2.5 1a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1"/>
-                                          </svg>
-                                        </button>
-                                        <p data-dismiss="modal" aria-label="Close"><span class="text-dark" aria-hidden="true">&times;</span></p>
-                                    </div>
-                                    <div class="modal-body" id="modal-body"> 
-                                        
-                                    </div>
-                                </div>
                             </div>
                         </div>
-                        <!-- /.Modal -->
+                    </div>
+                </div>
+                <!-- /.Modal -->
+
+
+                <div id="importCSVModal" class="modal animated fadeIn bs-example-modal-lg bs-example-modal-center ml-5" tabindex="-1" role="dialog" aria-hidden="true">
+                  <div class="modal-dialog modal-xl modal-dialog-centered">
+                      <div class="modal-content">
+                          <div class="modal-header justify-content-between bg-white">
+                              <h5 class="page-title text-dark">Select CSV File</h5>
+                              <p data-dismiss="modal" aria-label="Close"><span class="text-dark" aria-hidden="true">&times;</span></p>
+                          </div>
+                          <div class="modal-body" id="modal-body">
+                            <form id="csvUploadForm" action="/api/invoice/importcsv" method="post" enctype="multipart/form-data">
+                              <input type="file" accept=".csv" name="file">
+                              <input type="submit" class="btn btn-secondary" id="btnUpload" name="btnUpload" value="Upload">
+                            </form>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+              <!-- /.Modal -->
                 <%- include('../views/components/pagination.ejs') %>
             </div>
         </div>
@@ -126,25 +157,25 @@
             <input type="hidden" name="invoice_id" id="invoice_id">
             <div class="customer_name">
               <label for="customer_name">Customer Name :</label>
-              <input type="text" name="customer_name" placeholder="Enter Customer Name">
+              <input type="text" class="ml-5" name="customer_name" placeholder="Enter Customer Name">
             </div>
             <label for="customer_phone">
               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
               Customer Phone :</label>
-            <input type="text" name="customer_phone" placeholder="Enter Customer Phone"> <br><br>
+            <input type="text" class="ml-5" name="customer_phone" placeholder="Enter Customer Phone"> <br><br>
             <div class="customer_email">
               <label for="customer_email">Customer Email :</label>
-              <input type="text" name="customer_email" placeholder="Enter Customer Email">
+              &nbsp;<input type="text" class="ml-5" name="customer_email" placeholder="Enter Customer Email">
             </div>
             <label for="customer_address">
               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
               Customer Address :</label>
-            <input type="text" name="customer_address" placeholder="Enter Customer Address">
+            <input type="text" class="ml-5" name="customer_address" placeholder="Enter Customer Address">
         </div>
       
         <h4 class="stock-title ml-5">Stock List</h4>
         <input type="button" class="btn btn-secondary mb-2 add_button" value="ADD"> 
-        <table id="stockListTable" class="text-center justify-content-center">
+        <table>
           <thead>
             <tr>
               <th>Stock Code</th>
@@ -163,7 +194,7 @@
         <input type="hidden" name="total_amount" value="0">
         <br>
         <input type="button" class="btn btn-secondary" id="btnUpdate" name="btnUpdate" value="UPDATE">
-      </form>
+    </form>
 </div>
 
 </body>
