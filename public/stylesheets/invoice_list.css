@@ -80,3 +80,82 @@ input[type="search"] {
   font-size: 16px;
   outline: none;
 }
+
+.sale-title, .stock-title {
+    padding-left: 80px;
+    color: #333;
+  }
+  
+
+  .btn {
+    padding: 10px 20px;
+    background-color: #6f8870;
+    border: none;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .btn:hover {
+    background-color: #45a049;
+  }
+
+  input[type='text'], input[type='number'] {
+    margin: 1px;
+    padding: 5px;
+    border-radius: 5px;
+    border: 1px solid #644c4c;
+    box-sizing: border-box;
+  }
+  
+  input[type='button'] {
+    position: relative;
+    left: 90%;
+    width: 120px;
+  }
+  
+  input[type='submit'] {
+    position: relative;
+    margin: 10px;
+    left: 40%;
+    width: 150px;
+    height: 50px;
+  }
+
+  .edit_stock_id {
+    width: 20px;
+    border: none;
+  }
+
+  .total {
+    margin-top: 10px;
+    text-align: right;
+    margin-right: 200px;
+  }
+  
+  
+  .container {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  
+  .container label,
+  .container input {
+    margin-bottom: 10px;
+  }
+  
+  .container label {
+    flex-basis: 20%;
+  }
+  
+  .container input {
+    flex-basis: 29%;
+  }
+  
+  .totalAmount {
+    text-align: right;
+  }
+
+  #btnUpdate {
+    left: 50% !important;
+  }

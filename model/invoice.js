@@ -224,7 +224,6 @@ static async createInvoice(data) {
       
     try {
       const { rows } = await sql.query(query, [id]);
-      console.log(rows);
       return rows[0];
     } catch (error) {
       throw new Error(`Error fetching invoice: ${error.message}`);
@@ -238,10 +237,12 @@ static async postUpdateById(id, data) {
 
     if (!customerId) {
       customerId = await this.createCustomer(data);
+    } else {
+      await this.updateCustomer(customerId, data);
     }
 
     const invoiceData = await this.updateInvoice(id, data, customerId);
-    await this.updateStockAndInvoiceStock(data, invoiceData.invoice);
+    await this.updateStockAndInvoiceStock(data.stock_data, invoiceData.invoice.id);
 
     return {
       invoice: invoiceData.invoice,
@@ -300,26 +301,49 @@ static async createCustomer(data) {
   }
 }
 
+static async updateCustomer(customerId, newData) {
+  try {
+    const customerUpdateQuery = `
+      UPDATE tbl_customer 
+      SET customer_name = $1, customer_phone = $2, customer_email = $3, customer_address = $4 
+      WHERE id = $5
+      RETURNING id
+    `;
+    const customerUpdateParams = [
+      newData.customer_name,
+      newData.customer_phone,
+      newData.customer_email,
+      newData.customer_address,
+      customerId
+    ];
+
+    const customerUpdateResult = await sql.query(
+      customerUpdateQuery,
+      customerUpdateParams
+    );
+
+    return customerUpdateResult.rows[0].id;
+
+  } catch (error) {
+    throw new Error(`Error updating customer: ${error.message}`);
+  }
+}
+
 static async updateInvoice(id, data, customerId) {
   try {
     const invoiceUpdateQuery = `
       UPDATE tbl_invoice 
-      SET invoice_no = $1, total_amount = $2, invoice_date = $3, customer_id = $4
-      WHERE id = $5
+      SET total_amount = $1, customer_id = $2
+      WHERE id = $3
       RETURNING *
     `;
     const invoiceUpdateParams = [
-      data.invoice_no,
       parseFloat(data.total_amount),
-      new Date().toISOString(),
       customerId,
       id,
     ];
 
-    const invoiceUpdateResult = await sql.query(
-      invoiceUpdateQuery,
-      invoiceUpdateParams
-    );
+    const invoiceUpdateResult = await sql.query(invoiceUpdateQuery, invoiceUpdateParams);
     const updatedInvoice = invoiceUpdateResult.rows[0];
 
     return { invoice: updatedInvoice };
@@ -328,79 +352,149 @@ static async updateInvoice(id, data, customerId) {
   }
 }
 
-static async updateStockAndInvoiceStock(data, invoice) {
-  try {
-    const stockUpdatePromises = [];
-
-    for (const product of data.stock_data) {
-      const stockUpdateQuery = `
-        UPDATE tbl_stock 
-        SET stock_code = $1, stock_description = $2, stock_price = $3, stock_quantity = $4, invoice_id = $5
-        WHERE id = $6
+static async updateStock(stockData, invoiceId) {
+  const stockUpdatePromises = [];
+  for (const product of stockData) {
+    try {
+      const stockCheckQuery = `
+        SELECT id FROM tbl_stock WHERE stock_code = $1
       `;
-      const stockUpdateParams = [
-        product.stock_code,
-        product.stock_description,
-        parseFloat(product.stock_price),
-        parseInt(product.stock_quantity),
-        invoice.id,
-        product.stock_id,
-      ];
+      const stockCheckParams = [product.stock_code];
+      const stockCheckResult = await sql.query(stockCheckQuery, stockCheckParams);
 
-      stockUpdatePromises.push(sql.query(stockUpdateQuery, stockUpdateParams));
+      if (stockCheckResult.rows.length > 0) {
+        const existingStock = stockCheckResult.rows[0];
+        const stockUpdateQuery = `
+          UPDATE tbl_stock 
+          SET stock_description = $1, stock_price = $2, stock_quantity = $3, invoice_id = $4
+          WHERE id = $5
+        `;
+        const stockUpdateParams = [
+          product.stock_description,
+          parseFloat(product.stock_price),
+          parseInt(product.stock_quantity),
+          invoiceId,
+          existingStock.id,
+        ];
+        await sql.query(stockUpdateQuery, stockUpdateParams);
+      } else {
+        const stockInsertQuery = `
+          INSERT INTO tbl_stock (stock_code, stock_description, stock_price, stock_quantity, invoice_id)
+          VALUES ($1, $2, $3, $4, $5)
+        `;
+        const stockInsertParams = [
+          product.stock_code,
+          product.stock_description,
+          parseFloat(product.stock_price),
+          parseInt(product.stock_quantity),
+          invoiceId,
+        ];
+        await sql.query(stockInsertQuery, stockInsertParams);
+      }
+    } catch (error) {
+      console.error(`Error updating stock: ${error.message}`);
     }
+  }
+}
 
-    await Promise.all(stockUpdatePromises);
-
-    const stockIds = data.stock_data.map((product) => product.stock_id);
-    const invoiceStockUpdateQuery = `
-      UPDATE tbl_invoice_stock 
-      SET stock_id = $1
-      WHERE invoice_id = $2
-    `;
-
-    for (const stockId of stockIds) {
-      const invoiceStockUpdateParams = [stockId, invoice.id];
-      await sql.query(invoiceStockUpdateQuery, invoiceStockUpdateParams);
-    }
+static async updateStockAndInvoiceStock(stockData, invoiceId) {
+  try {
+    await this.deleteExistingStockAndInvoiceStock(invoiceId);
+    await this.insertNewStockAndInvoiceStock(stockData, invoiceId);
   } catch (error) {
     throw new Error(`Error updating stock and invoice-stock: ${error.message}`);
   }
 }
 
-
-
-  // DELETE Invoice
-  static async deleteInvoiceById(id) {
-    const query = `
-      DELETE FROM tbl_invoice
-      WHERE id = $1
-      RETURNING *;
+static async deleteExistingStockAndInvoiceStock(invoiceId) {
+  try {
+    const getStockIdsQuery = `
+      SELECT id
+      FROM tbl_stock
+      WHERE invoice_id = $1
     `;
-  
-    try {
-      const { rows } = await sql.query(query, [id]);
-      const deletedInvoice = rows[0];
-  
-      if (deletedInvoice) {
-        const deleteStockQuery = `
-          DELETE FROM tbl_invoice_stock
-          WHERE invoice_id = $1;
-        `;
-        await sql.query(deleteStockQuery, [id]);
-  
-        const deleteAssociatedStockQuery = `
-          DELETE FROM tbl_stock
-          WHERE invoice_id = $1;
-        `;
-        await sql.query(deleteAssociatedStockQuery, [id]);
-      }
-  
-      return deletedInvoice;
-    } catch (error) {
-      throw new Error(`Error deleting invoice: ${error.message}`);
+    const stockIdsResult = await sql.query(getStockIdsQuery, [invoiceId]);
+    const stockIds = stockIdsResult.rows.map(row => row.id);
+
+    // Delete stock entries
+    for (const stockId of stockIds) {
+      const deleteStockQuery = `
+        DELETE FROM tbl_stock
+        WHERE id = $1
+      `;
+      await sql.query(deleteStockQuery, [stockId]);
     }
+
+    // Delete invoice-stock entries
+    const deleteInvoiceStockQuery = `
+      DELETE FROM tbl_invoice_stock
+      WHERE invoice_id = $1
+    `;
+    await sql.query(deleteInvoiceStockQuery, [invoiceId]);
+  } catch (error) {
+    throw new Error(`Error deleting existing stock and invoice-stock: ${error.message}`);
   }
+}
+
+static async insertNewStockAndInvoiceStock(stockData, invoiceId) {
+  try {
+    for (const product of stockData) {
+      const stockInsertQuery = `
+        INSERT INTO tbl_stock (stock_code, stock_description, stock_price, stock_quantity, invoice_id)
+        VALUES ($1, $2, $3, $4, $5)
+      `;
+      const stockInsertParams = [
+        product.stock_code,
+        product.stock_description,
+        parseFloat(product.stock_price),
+        parseInt(product.stock_quantity),
+        invoiceId,
+      ];
+      await sql.query(stockInsertQuery, stockInsertParams);
+    }
+
+    const invoiceStockInsertQuery = `
+      INSERT INTO tbl_invoice_stock (invoice_id, stock_id)
+      SELECT $1, id FROM tbl_stock WHERE invoice_id = $1
+    `;
+    await sql.query(invoiceStockInsertQuery, [invoiceId]);
+  } catch (error) {
+    throw new Error(`Error inserting new stock and invoice-stock: ${error.message}`);
+  }
+}
+
+
+// DELETE Invoice
+static async deleteInvoiceById(id) {
+  const query = `
+    DELETE FROM tbl_invoice
+    WHERE id = $1
+    RETURNING *;
+  `;
+
+  try {
+    const { rows } = await sql.query(query, [id]);
+    const deletedInvoice = rows[0];
+
+    if (deletedInvoice) {
+      const deleteStockQuery = `
+        DELETE FROM tbl_invoice_stock
+        WHERE invoice_id = $1;
+      `;
+      await sql.query(deleteStockQuery, [id]);
+
+      const deleteAssociatedStockQuery = `
+        DELETE FROM tbl_stock
+        WHERE invoice_id = $1;
+      `;
+      await sql.query(deleteAssociatedStockQuery, [id]);
+    }
+
+    return deletedInvoice;
+  } catch (error) {
+    throw new Error(`Error deleting invoice: ${error.message}`);
+  }
+}
   
   }
 

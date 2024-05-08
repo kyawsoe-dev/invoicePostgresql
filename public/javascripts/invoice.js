@@ -46,7 +46,6 @@ $(document).ready(function() {
   $('#invoiceForm').submit(function(e) {
     e.preventDefault();
     let formData = getFormData();
-    console.log('Form Data:', formData);
     $.ajax({
       url: '/api/invoice/create',
       type: 'POST',

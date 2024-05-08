@@ -1,4 +1,5 @@
 $(document).ready(function() {
+  $('#invoiceEditForm').hide();
     let timer;
     $('#searchInput').on('input', function() {
         clearTimeout(timer);
@@ -152,3 +153,141 @@ $(document).on("click", ".btnDelete", function () {
     });
   });
   
+
+  $(document).on("click", "#btnEdit", function () {
+    $('#invoiceEditForm').show();
+    $('#invoice-list-container').hide();
+    var id = $(this).data("id");
+    $.ajax({
+        url: `/api/invoice/edit/${id}`,
+        method: "GET",
+        success: function (result) {
+            if (result) {
+                const data = result.data;
+                $('input[name="invoice_id"]').val(data.invoice_id);
+                $('input[name="customer_name"]').val(data.customer_name);
+                $('input[name="customer_phone"]').val(data.customer_phone);
+                $('input[name="customer_email"]').val(data.customer_email);
+                $('input[name="customer_address"]').val(data.customer_address);
+
+                $("tbody").empty();
+
+                data.stock_items.forEach(function (stock) {
+                    let newRow = `
+                        <tr>
+                            <td><input type="text" name="stock_code[]" value="${stock.stock_code}" placeholder="Enter Stock Code"></td>
+                            <td><input type="text" name="stock_description[]" value="${stock.stock_description}" placeholder="Enter Stock Description"></td>
+                            <td><input type="number" step="0.00" name="stock_price[]" value="${stock.stock_price}" placeholder="Enter Stock Price"></td>
+                            <td><input type="number" name="stock_quantity[]" value="${stock.stock_quantity}" placeholder="Enter Stock Quantity"></td>
+                            <td><input type="text" name="amount[]" value="${(stock.stock_price * stock.stock_quantity).toFixed(2)}" readonly></td>
+                            <td><button class="btn btn-danger remove_button">Remove</button></td>
+                        </tr>
+                    `;
+                    $('#totalAmount').text(data.total_amount);
+                    $("tbody").append(newRow);
+                });
+
+
+                $("#stockList").show();
+                $(".total").show();
+                $("#btnSubmit").show();
+
+                $(".add_button").click(function () {
+                    let newRow = `
+                        <tr>
+                            <td><input type="text" name="stock_code[]" placeholder="Enter Stock Code"></td>
+                            <td><input type="text" name="stock_description[]" placeholder="Enter Stock Description"></td>
+                            <td><input type="number" step="0.00" name="stock_price[]" placeholder="Enter Stock Price"></td>
+                            <td><input type="number" name="stock_quantity[]" placeholder="Enter Stock Quantity"></td>
+                            <td><input type="text" name="amount[]" readonly></td>
+                            <td><button class="btn btn-danger remove_button">Remove</button></td>
+                        </tr>
+                    `;
+                    $("tbody").append(newRow);
+                });
+
+                $("tbody").on("click", ".remove_button", function () {
+                    $(this).closest("tr").remove();
+                    updateTotalAmount();
+                });
+
+                $("tbody").on("input", "input[name='stock_price[]'], input[name='stock_quantity[]']", function () {
+                    let price = parseFloat($(this).closest("tr").find("input[name='stock_price[]']").val()) || 0;
+                    let quantity = parseInt($(this).closest("tr").find("input[name='stock_quantity[]']").val()) || 0;
+                    let amount = price * quantity;
+                    $(this).closest("tr").find("input[name='amount[]']").val(amount.toFixed(2));
+                    updateTotalAmount();
+                });
+
+                function updateTotalAmount() {
+                    let totalAmount = 0;
+                    $("input[name='amount[]']").each(function () {
+                        totalAmount += parseFloat($(this).val()) || 0;
+                    });
+                    $("#totalAmount").text(totalAmount.toFixed(2));
+                    $("input[name='total_amount']").val(totalAmount.toFixed(2));
+                }
+            }
+        },
+        error: function (xhr, status, error) {
+            console.log("Error Status:", status);
+            console.log("Error Response:", xhr.responseText);
+            console.log("Error Message:", error);
+        }
+    });
+});
+
+
+$(document).on("click", "#btnUpdate", function () {
+  let invoiceId = $('#invoice_id').val();
+  if (!invoiceId) {
+    console.error('Error: Invoice ID not found.');
+    return;
+  }
+  let updatedFormData = getUpdatedFormData();
+  console.log(updatedFormData,  "Form Updated Data")
+  $.ajax({
+    url: `/api/invoice/edit/${invoiceId}`,
+    type: 'PUT',
+    data: JSON.stringify(updatedFormData),
+    contentType: 'application/json',
+    success: function (response) {
+      console.log('Form data updated successfully:', response);
+      window.location.href = 'http://localhost:3001/api/invoice/listpage';
+      // window.location.href = 'https://crudinvoicepostgresql.onrender.com/api/invoice/listpage';
+    },
+    error: function (xhr, status, error) {
+      console.error('Error updating form data:', error);
+    }
+  });
+});
+
+
+function getUpdatedFormData() {
+  let formData = {
+    customer_name: $('input[name="customer_name"]').val(),
+    customer_phone: $('input[name="customer_phone"]').val(),
+    customer_email: $('input[name="customer_email"]').val(),
+    customer_address: $('input[name="customer_address"]').val(),
+    total_amount: $('input[name="total_amount"]').val(),
+    stock_data: []
+  };
+
+  $("tbody tr").each(function () {
+    let stockCode = $(this).find("input[name='stock_code[]']").val();
+    let stockDescription = $(this).find("input[name='stock_description[]']").val();
+    let stockPrice = $(this).find("input[name='stock_price[]']").val();
+    let stockQuantity = $(this).find("input[name='stock_quantity[]']").val();
+
+    if (stockCode && stockDescription && stockPrice && stockQuantity) {
+      formData.stock_data.push({
+        stock_code: stockCode,
+        stock_description: stockDescription,
+        stock_price: stockPrice,
+        stock_quantity: stockQuantity,
+      });
+    }
+  });
+
+  return formData;
+}
