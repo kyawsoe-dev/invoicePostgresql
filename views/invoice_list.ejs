@@ -56,7 +56,7 @@
                   </thead>
                   <tbody>
                     <% if(data && data.length > 0) { %>
-                      <% data.forEach((invoice, index) => {  
+                      <% data.forEach((invoice) => {  
                           var value = invoice.total_amount;
                           var valueStr = value.toString();
                           var splitValues = [];
@@ -68,7 +68,7 @@
                       %>
                           
                         <tr>
-                          <td><%= ++index %></td>
+                          <td><%= invoice.custom_id %></td>
                           <td><%= invoice.invoice_no %></td>
                           <td><%= invoice.customer_name %></td>
                           <td><%= invoice.customer_phone %></td>
