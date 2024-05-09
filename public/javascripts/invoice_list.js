@@ -92,6 +92,8 @@ function formatNumberWithCommas(number) {
     return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
+
+// print
 $(document).on("click", "#btnPrint", function () {
     $("#invoiceViewModal").modal("hide");
     printModalContent();
@@ -104,6 +106,26 @@ function printModalContent() {
     document.body.innerHTML = printContents;
     window.print();
     document.body.innerHTML = originalContents;
+}
+
+// download
+$(document).on("click", "#btnDownload", function () {
+  downloadModalContent();
+});
+
+function downloadModalContent() {
+  var paySlipHTML = document.getElementById("modal-body");
+  html2canvas(paySlipHTML).then(canvas => {
+    const pngDataUrl = canvas.toDataURL('image/png');
+    const a = document.createElement('a');
+    const today = `${new Date().toISOString().slice(0, 10)}_${new Date().getTime()}`;
+    a.href = pngDataUrl;
+    a.download = `slip-${today}.png`;
+    a.click();
+    setTimeout(function () {
+      $("#invoiceViewModal").modal("hide");
+    }, 1000);
+  });
 }
 
 
