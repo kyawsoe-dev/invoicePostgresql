@@ -6,6 +6,7 @@ var logger = require('morgan');
 require('dotenv').config();
 var sql = require('./helper/database');
 
+var indexRouter = require('./routes/index');
 var stockRouter = require('./routes/stock');
 var customerRouter = require('./routes/customer');
 var invoiceRouter = require('./routes/invoice');
@@ -30,6 +31,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.use('/', indexRouter);
 app.use('/api/stock', stockRouter);
 app.use('/api/customer', customerRouter);
 app.use('/api/invoice', invoiceRouter);
