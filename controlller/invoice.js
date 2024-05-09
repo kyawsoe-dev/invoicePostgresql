@@ -212,7 +212,9 @@ exports.exportCSV = async (req, res) => {
       });
     });
     await csvWriter.writeRecords(flattenedData);
-    res.status(200).download(`${today}_invoicelist.csv`);
+    res.status(200).download(`${today}_invoicelist.csv`, () => {
+      fs.unlinkSync(`${today}_invoicelist.csv`);
+    });
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "Internal Server Error" });
@@ -279,6 +281,103 @@ exports.importCSV = [middleware.single('file'), async (req, res) => {
 }];
 
 
+// download pdf
+const PDFDocument = require('pdfkit');
 
+exports.downloadPDF = async (req, res) => {
+  try {
+    const invoiceList = await invoiceModel.exportCSV();
 
+    if (invoiceList.length === 0) {
+      return res.status(404).json({ message: 'There are no records found.' });
+    }
 
+    const doc = new PDFDocument();
+    const today = `${new Date().toISOString().slice(0, 10)}_${new Date().getTime()}`;
+    const filePath = `${today}_invoicelist.pdf`;
+
+    const stream = doc.pipe(fs.createWriteStream(filePath));
+
+    doc.font('Helvetica');
+
+    const invoiceHeight = 70;
+    const cellPadding = 5;
+
+    invoiceList.forEach((invoice, index) => {
+      let totalAmount = 0;
+
+      if (index > 0) {
+        doc.addPage();
+      }
+
+      doc.fontSize(12).text(`Invoice ID: ${invoice.invoice_id}`, { align: 'center' });
+      doc.moveDown();
+      doc.fontSize(12).text(`Invoice Date: ${invoice.invoice_date}`, { align: 'center' });
+      doc.moveDown();
+
+      const customerData = [
+        `Customer ID: ${invoice.customer_id}`,
+        `Customer Name: ${invoice.customer_name}`,
+        `Customer Phone: ${invoice.customer_phone}`,
+        `Customer Email: ${invoice.customer_email}`,
+        `Customer Address: ${invoice.customer_address}`
+      ];
+      doc.fontSize(12).text(customerData.join('\n'));
+      doc.moveDown();
+
+      const tableHeaders = ['Stock ID', 'Stock Code', 'Stock Description', 'Stock Price', 'Stock Quantity', 'Amount'];
+      doc.font('Helvetica-Bold').text('Stock Items', { align: 'center' }).moveDown();
+
+      const tableTop = doc.y;
+      const cellWidth = doc.page.width / tableHeaders.length;
+      const cellHeight = invoiceHeight / (invoice.stock_items ? invoice.stock_items.length + 2 : 1); // Added 2 for stock items and total amount
+
+      tableHeaders.forEach((header, colIndex) => {
+        doc.rect(cellWidth * colIndex, tableTop, cellWidth, cellHeight).fillAndStroke('#CCCCCC', 'gray');
+        doc.fontSize(10).fill('white').text(header, cellWidth * colIndex + cellPadding, tableTop + cellPadding, { width: cellWidth - cellPadding * 2, align: 'center' });
+      });
+
+      if (invoice.stock_items && invoice.stock_items.length > 0) {
+        invoice.stock_items.forEach((item, rowIndex) => {
+          const rowTop = tableTop + cellHeight + cellHeight * rowIndex;
+          tableHeaders.forEach((header, colIndex) => {
+            let cellContent = item[header.toLowerCase().replace(' ', '_')] || 'N/A';
+            if (header === 'Amount') {
+              const amount = item['stock_price'] * item['stock_quantity'];
+              cellContent = amount.toString();
+              totalAmount += amount;
+            }
+            doc.rect(cellWidth * colIndex, rowTop, cellWidth, cellHeight).fillAndStroke('#FFFFFF', 'gray');
+            doc.fontSize(10).fill('black').text(cellContent, cellWidth * colIndex + cellPadding, rowTop + cellPadding, { width: cellWidth - cellPadding * 2, align: 'center' });
+          });
+        });
+
+        // Total Amount
+        const totalRowTop = tableTop + cellHeight + cellHeight * invoice.stock_items.length;
+        doc.rect(0, totalRowTop, doc.page.width, cellHeight).fillAndStroke('#CCCCCC', 'gray');
+        doc.fontSize(10).fill('white').text('Total Amount', cellPadding, totalRowTop + cellPadding, { width: cellWidth - cellPadding * 2, align: 'left' });
+        doc.fontSize(10).fill('black').text(totalAmount.toString(), cellWidth * 4 + cellPadding, totalRowTop + cellPadding, { width: cellWidth - cellPadding * 2, align: 'left' });
+      }
+    });
+
+    doc.end();
+
+    stream.on('finish', () => {
+      res.download(filePath, err => {
+        if (err) {
+          console.log(err);
+          res.status(500).json({ message: 'Error downloading PDF' });
+        } else {
+          fs.unlink(filePath, err => {
+            if (err) {
+              console.log(err);
+            }
+          });
+        }
+      });
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+};
