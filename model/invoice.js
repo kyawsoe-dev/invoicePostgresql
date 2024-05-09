@@ -534,7 +534,7 @@ static async exportCSV() {
       tblcu.customer_phone,
       tblcu.customer_email,
       tblcu.customer_address
-      ORDER BY tbliv.invoice_date DESC
+      ORDER BY tbliv.invoice_date ASC
   `;
 
   try {
