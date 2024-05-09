@@ -27,11 +27,9 @@ exports.getInvoiceListPage = async (req, res) => {
     );
     const startIndex = (page - 1) * ITEMS_PER_PAGE + 1;
     // const endIndex = Math.min(startIndex + ITEMS_PER_PAGE - 1, totalItems);
-
     for (let i = 0; i < invoiceList.length; i++) {
       invoiceList[i].custom_id = startIndex + i;
     }
-    console.log(invoiceList);
     res.render('invoice_list', {
       title: "Invoice List Page",
       data: invoiceList,
@@ -69,6 +67,10 @@ exports.getInvoice = async (req, res) => {
       filter
     ); 
     console.log(totalItems);
+    const startIndex = (page - 1) * ITEMS_PER_PAGE + 1;
+    for (let i = 0; i < invoiceList.length; i++) {
+      invoiceList[i].custom_id = startIndex + i;
+    }
     res.status(200).json({ 
       message: "Invoice List", 
       data: invoiceList,
