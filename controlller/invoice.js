@@ -165,10 +165,14 @@ exports.deleteInvoiceById = async (req, res) => {
 
 
 
+// export csv
 const { createObjectCsvWriter } = require('csv-writer');
-const today = `${new Date().toISOString().slice(0, 10)}_${new Date().getTime()}`;
+const today = new Date().toISOString().slice(0, 10);
+const currentTime = new Date().getTime();
+const fileName = `${today}_${currentTime}_invoicelist.csv`;
+
 const csvWriter = createObjectCsvWriter({
-  path: `${today}_invoicelist.csv`,
+  path: fileName,
   header: [
     { id: 'invoice_id', title: 'Invoice ID' },
     { id: 'invoice_no', title: 'Invoice Number' },
@@ -190,10 +194,11 @@ const csvWriter = createObjectCsvWriter({
 exports.exportCSV = async (req, res) => {
   try {
     const invoiceList = await invoiceModel.exportCSV();
-    const flattenedData = [];
-    if(invoiceList.length === 0) {
+    if (invoiceList.length === 0) {
       return res.status(404).json({ message: 'There is no Data to Export' });
     }
+
+    const flattenedData = [];
     invoiceList.forEach(invoice => {
       invoice.stock_items.forEach(stockItem => {
         flattenedData.push({
@@ -214,13 +219,14 @@ exports.exportCSV = async (req, res) => {
         });
       });
     });
+
     await csvWriter.writeRecords(flattenedData);
-    res.status(200).download(`${today}_invoicelist.csv`, () => {
-      fs.unlinkSync(`${today}_invoicelist.csv`);
+    res.status(200).download(fileName, () => {
+      fs.unlinkSync(fileName);
     });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ message: "Internal Server Error" });
+    res.status(500).json({ message: 'Internal Server Error' });
   }
 };
 
