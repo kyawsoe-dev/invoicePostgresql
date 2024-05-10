@@ -312,7 +312,7 @@ exports.downloadPDF = async (req, res) => {
         doc.addPage();
       }
 
-      doc.fontSize(12).text(`Invoice ID: ${invoice.invoice_id}`, { align: 'center' });
+      doc.fontSize(12).text(`${invoice.invoice_no}`, { align: 'center' });
       doc.moveDown();
       doc.fontSize(12).text(`Invoice Date: ${invoice.invoice_date}`, { align: 'center' });
       doc.moveDown();
