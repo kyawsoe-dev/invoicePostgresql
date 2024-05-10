@@ -5,7 +5,7 @@ $(document).ready(function() {
         clearTimeout(timer);
         timer = setTimeout(function() {
             $('#searchForm').submit();
-        }, 500);
+        }, 1000);
     });
 });
 

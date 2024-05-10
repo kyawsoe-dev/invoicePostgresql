@@ -191,6 +191,9 @@ exports.exportCSV = async (req, res) => {
   try {
     const invoiceList = await invoiceModel.exportCSV();
     const flattenedData = [];
+    if(invoiceList.length === 0) {
+      return res.status(404).json({ message: 'There is no Data to Export' });
+    }
     invoiceList.forEach(invoice => {
       invoice.stock_items.forEach(stockItem => {
         flattenedData.push({
@@ -223,7 +226,6 @@ exports.exportCSV = async (req, res) => {
 
 
 // import csv
-const multer = require('multer');
 const csv = require('csv-parser');
 const fs = require('fs');
 const middleware = require('../helper/upload_middleware').csvUpload;
@@ -231,7 +233,7 @@ const middleware = require('../helper/upload_middleware').csvUpload;
 exports.importCSV = [middleware.single('file'), async (req, res) => {
     try {
         if (!req.file) {
-            return res.status(400).json({ message: 'No file uploaded' });
+            return res.status(404).json({ message: 'No file uploaded' });
         }
 
         const results = [];
@@ -330,7 +332,7 @@ exports.downloadPDF = async (req, res) => {
 
       const tableTop = doc.y;
       const cellWidth = doc.page.width / tableHeaders.length;
-      const cellHeight = invoiceHeight / (invoice.stock_items ? invoice.stock_items.length + 2 : 1); // Added 2 for stock items and total amount
+      const cellHeight = invoiceHeight / (invoice.stock_items ? invoice.stock_items.length + 2 : 1);
 
       tableHeaders.forEach((header, colIndex) => {
         doc.rect(cellWidth * colIndex, tableTop, cellWidth, cellHeight).fillAndStroke('#CCCCCC', 'gray');
