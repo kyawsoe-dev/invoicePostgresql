@@ -152,8 +152,10 @@
                           </div>
                           <div class="modal-body" id="modal-body">
                             <form id="csvUploadForm" action="/api/invoice/importcsv" method="post" enctype="multipart/form-data">
-                              <input type="file" accept=".csv" name="file">
+                              <!-- <input type="file" accept=".csv" name="file"> -->
+                              <input type="file" accept=".csv" name="file" id="fileInput" onchange="handleFile()">
                               <input type="submit" class="btn btn-secondary" id="btnUpload" name="btnUpload" value="Upload">
+                              <div id="fileDisplayArea"></div>
                             </form>
                           </div>
                       </div>
@@ -210,6 +212,35 @@
         <input type="button" class="btn btn-secondary" id="btnUpdate" name="btnUpdate" value="UPDATE">
     </form>
 </div>
+<script>
+  function handleFile() {
+  const fileInput = document.getElementById('fileInput');
+  const fileDisplayArea = document.getElementById('fileDisplayArea');
 
+  const file = fileInput.files[0];
+  const reader = new FileReader();
+
+  reader.onload = function (e) {
+    const contents = e.target.result;
+    const rows = contents.split('\n');
+
+    let tableHTML = '<table>';
+    for (let i = 0; i < rows.length; i++) {
+      const cells = rows[i].split(',');
+      tableHTML += '<tr>';
+      for (let j = 0; j < cells.length; j++) {
+        tableHTML += `<td>${cells[j]}</td>`;
+      }
+      tableHTML += '</tr>';
+    }
+    tableHTML += '</table>';
+
+    fileDisplayArea.innerHTML = tableHTML;
+  };
+
+  reader.readAsText(file);
+}
+
+</script>
 </body>
 </html>

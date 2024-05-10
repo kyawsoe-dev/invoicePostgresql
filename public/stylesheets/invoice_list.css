@@ -159,3 +159,14 @@ input[type="search"] {
   #btnUpdate {
     left: 50% !important;
   }
+
+  #fileDisplayArea {
+    margin-top: 20px;
+    border: 1px solid #ccc;
+    padding: 10px;
+    width: 100%;
+    height: 200px;
+    overflow-x: auto;
+    overflow-y: scroll;
+  }
+  
