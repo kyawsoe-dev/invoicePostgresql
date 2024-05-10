@@ -199,8 +199,8 @@ exports.exportCSV = async (req, res) => {
     }
 
     const flattenedData = [];
-    invoiceList.forEach(invoice => {
-      invoice.stock_items.forEach(stockItem => {
+    for (const invoice of invoiceList) {
+      for (const stockItem of invoice.stock_items) {
         flattenedData.push({
           invoice_id: invoice.invoice_id,
           invoice_no: invoice.invoice_no,
@@ -217,8 +217,8 @@ exports.exportCSV = async (req, res) => {
           stock_price: stockItem.stock_price,
           stock_quantity: stockItem.stock_quantity
         });
-      });
-    });
+      }
+    }
 
     await csvWriter.writeRecords(flattenedData);
     res.status(200).download(fileName, () => {
@@ -229,7 +229,6 @@ exports.exportCSV = async (req, res) => {
     res.status(500).json({ message: 'Internal Server Error' });
   }
 };
-
 
 // import csv
 const csv = require('csv-parser');
