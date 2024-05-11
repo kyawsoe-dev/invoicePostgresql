@@ -353,7 +353,6 @@ static async updateInvoice(id, data, customerId) {
 }
 
 static async updateStock(stockData, invoiceId) {
-  const stockUpdatePromises = [];
   for (const product of stockData) {
     try {
       const stockCheckQuery = `
@@ -414,10 +413,8 @@ static async deleteExistingStockAndInvoiceStock(invoiceId) {
       WHERE invoice_id = $1
     `;
     const stockIdsResult = await sql.query(getStockIdsQuery, [invoiceId]);
-    console.log(stockIdsResult);
     const stockIds = stockIdsResult.rows.map(row => row.id);
 
-    // Delete stock entries
     for (const stockId of stockIds) {
       const deleteStockQuery = `
         DELETE FROM tbl_stock
@@ -426,7 +423,6 @@ static async deleteExistingStockAndInvoiceStock(invoiceId) {
       await sql.query(deleteStockQuery, [stockId]);
     }
 
-    // Delete invoice-stock entries
     const deleteInvoiceStockQuery = `
       DELETE FROM tbl_invoice_stock
       WHERE invoice_id = $1
@@ -540,7 +536,6 @@ static async exportCSV() {
   try {
     const invoicesResult = await sql.query(invoicesQuery);
     const invoiceList = invoicesResult.rows;
-    console.log(invoiceList[0].stock_items)
     return invoiceList;
   } catch (error) {
     throw new Error(`Error fetching invoices: ${error.message}`);

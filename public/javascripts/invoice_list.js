@@ -267,16 +267,22 @@ $(document).on("click", "#btnUpdate", function () {
     return;
   }
   let updatedFormData = getUpdatedFormData();
-  console.log(updatedFormData,  "Form Updated Data")
   $.ajax({
     url: `/api/invoice/edit/${invoiceId}`,
     type: 'PUT',
     data: JSON.stringify(updatedFormData),
     contentType: 'application/json',
     success: function (response) {
-      console.log('Form data updated successfully:', response);
-      // window.location.href = 'http://localhost:3001/api/invoice/listpage';
-      window.location.href = 'https://crudinvoicepostgresql.onrender.com/api/invoice/listpage';
+      Swal.fire({
+        icon: "success",
+        title: `${response.message}`,
+        showConfirmButton: false,
+        timer: 1500,
+      }).then((result) => {
+        if (result.dismiss === Swal.DismissReason.timer) {
+          window.location.reload();
+        }
+      });
     },
     error: function (xhr, status, error) {
       console.error('Error updating form data:', error);

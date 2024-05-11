@@ -129,9 +129,6 @@ exports.getInvoiceById = async (req, res) => {
 exports.postUpdateById = async (req, res) => {
   const id = req.params.id;
   const data = req.body;
-
-  console.log(data, id, "Update Data");
-
   try {
     const result = await invoiceModel.postUpdateById(id, data);
 
@@ -307,7 +304,7 @@ exports.downloadPDF = async (req, res) => {
 
     doc.font('Helvetica');
 
-    const invoiceHeight = 70;
+    const invoiceHeight = 100;
     const cellPadding = 5;
 
     invoiceList.forEach((invoice, index) => {
