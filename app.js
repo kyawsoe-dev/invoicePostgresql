@@ -37,7 +37,7 @@ app.use('/api/customer', customerRouter);
 app.use('/api/invoice', invoiceRouter);
 
 app.use((req, res, next) => {
-  res.send("Route not found, Please enter correct route");
+  res.send(`<h1>Route Not Found </h1>`);
 });
 
 // error handler
