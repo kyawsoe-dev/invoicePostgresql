@@ -327,7 +327,16 @@ $(document).ready(function() {
       contentType: false,
       processData: false,
       success: function(response) {
-        window.location.reload();
+        Swal.fire({
+          icon: "success",
+          title: `${response.message}`,
+          showConfirmButton: false,
+          timer: 1500,
+        }).then((result) => {
+          if (result.dismiss === Swal.DismissReason.timer) {
+            window.location.reload();
+          }
+        });
       },
       error: function(xhr, status, error) {
         console.error('Error uploading file:', error);
