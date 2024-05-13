@@ -1,5 +1,6 @@
 const invoiceModel = require("../model/invoice");
 const ITEMS_PER_PAGE = 10;
+const path = require('path');
 
 // GET Invoice Page
 exports.getInvoicePage = async(req, res) => {
@@ -9,45 +10,59 @@ exports.getInvoicePage = async(req, res) => {
 }
 
 // Invoice List Page
+// exports.getInvoiceListPage = async (req, res) => {
+//   const page = +req.query.page || 1;
+//   const search = req.query.search || '';
+//   const columnsMap = ["invoice_no", "customer_name", "customer_phone", "customer_email", "customer_address", "stock_code"];
+
+//   const filter = columnsMap.reduce((acc, col) => {
+//     acc[col] = search || '';
+//     return acc;
+//   }, {});
+
+//   try {
+//     const { invoiceList, totalItems } = await invoiceModel.getInvoices(
+//       page,
+//       ITEMS_PER_PAGE,
+//       filter
+//     );
+//     const startIndex = (page - 1) * ITEMS_PER_PAGE + 1;
+//     // const endIndex = Math.min(startIndex + ITEMS_PER_PAGE - 1, totalItems);
+//     for (let i = 0; i < invoiceList.length; i++) {
+//       invoiceList[i].custom_id = startIndex + i;
+//     }
+//     res.render('invoice_list', {
+//       title: "Invoice List Page",
+//       data: invoiceList,
+//       query: req.query,
+//       currentPage: page,
+//       hasNextPage: ITEMS_PER_PAGE * page < totalItems,
+//       hasPreviousPage: page > 1,
+//       nextPage: page + 1,
+//       previousPage: page - 1,
+//       perPage: ITEMS_PER_PAGE,
+//       lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE)
+//     });
+//   } catch (error) {
+//     console.log(error);
+//     res.status(500).json({ message: "Internal Server Error" });
+//   }
+// };
+
+
 exports.getInvoiceListPage = async (req, res) => {
-  const page = +req.query.page || 1;
-  const search = req.query.search || '';
-  const columnsMap = ["invoice_no", "customer_name", "customer_phone", "customer_email", "customer_address", "stock_code"];
-
-  const filter = columnsMap.reduce((acc, col) => {
-    acc[col] = search || '';
-    return acc;
-  }, {});
-
   try {
-    const { invoiceList, totalItems } = await invoiceModel.getInvoices(
-      page,
-      ITEMS_PER_PAGE,
-      filter
-    );
-    const startIndex = (page - 1) * ITEMS_PER_PAGE + 1;
-    // const endIndex = Math.min(startIndex + ITEMS_PER_PAGE - 1, totalItems);
-    for (let i = 0; i < invoiceList.length; i++) {
-      invoiceList[i].custom_id = startIndex + i;
-    }
+    const invoiceList  = await invoiceModel.getInvoiceList();
     res.render('invoice_list', {
       title: "Invoice List Page",
       data: invoiceList,
-      query: req.query,
-      currentPage: page,
-      hasNextPage: ITEMS_PER_PAGE * page < totalItems,
-      hasPreviousPage: page > 1,
-      nextPage: page + 1,
-      previousPage: page - 1,
-      perPage: ITEMS_PER_PAGE,
-      lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE)
+      query: req.query
     });
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
-
 
 // GET Invoice List
 exports.getInvoice = async (req, res) => {
@@ -187,6 +202,7 @@ const csvWriter = createObjectCsvWriter({
     { id: 'stock_quantity', title: 'Stock Quantity' }
   ]
 });
+
 
 exports.exportCSV = async (req, res) => {
   try {
@@ -338,7 +354,7 @@ exports.downloadPDF = async (req, res) => {
 
       tableHeaders.forEach((header, colIndex) => {
         doc.rect(cellWidth * colIndex, tableTop, cellWidth, cellHeight).fillAndStroke('#CCCCCC', 'gray');
-        doc.fontSize(10).fill('white').text(header, cellWidth * colIndex + cellPadding, tableTop + cellPadding, { width: cellWidth - cellPadding * 2, align: 'center' });
+        doc.fontSize(10).fill('black').text(header, cellWidth * colIndex + cellPadding, tableTop + cellPadding, { width: cellWidth - cellPadding * 2, align: 'center' });
       });
 
       if (invoice.stock_items && invoice.stock_items.length > 0) {
@@ -359,7 +375,7 @@ exports.downloadPDF = async (req, res) => {
         // Total Amount
         const totalRowTop = tableTop + cellHeight + cellHeight * invoice.stock_items.length;
         doc.rect(0, totalRowTop, doc.page.width, cellHeight).fillAndStroke('#CCCCCC', 'gray');
-        doc.fontSize(10).fill('white').text('Total Amount', cellPadding, totalRowTop + cellPadding, { width: cellWidth - cellPadding * 2, align: 'left' });
+        doc.fontSize(10).fill('black').text('Total Amount', cellPadding, totalRowTop + cellPadding, { width: cellWidth - cellPadding * 2, align: 'left' });
         doc.fontSize(10).fill('black').text(totalAmount.toString(), cellWidth * 4 + cellPadding, totalRowTop + cellPadding, { width: cellWidth - cellPadding * 2, align: 'left' });
       }
     });
@@ -385,3 +401,103 @@ exports.downloadPDF = async (req, res) => {
     res.status(500).json({ message: 'Internal Server Error' });
   }
 };
+
+
+// Download PDF by ID
+exports.downloadPDFByID = async (req, res) => {
+  const id = req.params.id;
+  try {
+    const invoice = await invoiceModel.getInvoiceById(id);
+    if (!invoice) {
+      return res.status(404).json({ message: 'Invoice not found.' });
+    }
+
+    const today = `${new Date().toISOString().slice(0, 10)}_${new Date().getTime()}`;
+    const pdfFileName = `${today}_${invoice.invoice_no}.pdf`;
+    const pdfFilePath = path.join(__dirname, '../uploads', pdfFileName);
+
+    if (!fs.existsSync(path.join(__dirname, '../uploads'))) {
+      fs.mkdirSync(path.join(__dirname, '../uploads'));
+    }
+
+    const doc = generatePDF(invoice, pdfFilePath);
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename=${pdfFileName}`);
+
+    res.download(pdfFilePath, pdfFileName, (err) => {
+      if (err) {
+        res.status(200).json({ message: 'PDF downloaded successfully' });
+      } else {
+        console.log('PDF downloaded successfully');
+        fs.unlinkSync(pdfFilePath);
+      }
+    });
+  } catch (error) {
+    console.error('Error generating or downloading PDF:', error);
+    res.status(500).json({ message: 'Error processing PDF' });
+  }
+};
+
+
+// Function to generate PDF
+function generatePDF(invoice, filePath) {
+  const doc = new PDFDocument({ size: 'A5' });
+  doc.pipe(fs.createWriteStream(filePath));
+  doc.font('Helvetica');
+  const invoiceHeight = 100;
+  const cellPadding = 5;
+  const tableWidthPercentage = 0.7;
+
+  let totalAmount = 0;
+  doc.fontSize(10);
+
+  doc.text('Invoice', { align: 'center' }).moveDown(2);
+
+  doc.fontSize(8);
+  doc.text(`No: ${invoice.invoice_no}`, { align: 'left' });
+  doc.text(`Date: ${invoice.invoice_date}`, { align: 'right' });
+  doc.text(`Name: ${invoice.customer_name}`, { align: 'left' });
+  doc.text(`Phone: ${invoice.customer_phone}`, { align: 'right' });
+  doc.text(`Email: ${invoice.customer_email}`, { align: 'left' });
+  doc.text(`Address: ${invoice.customer_address}`, { align: 'right' });
+
+
+  const tableHeaders = ['Stock ID', 'Stock Code', 'Stock Description', 'Stock Price', 'Stock Quantity', 'Amount'];
+  const tableTop = doc.y;
+  const tableWidth = doc.page.width * tableWidthPercentage;
+  const cellWidth = tableWidth / tableHeaders.length;
+  const cellHeight = invoiceHeight / (invoice.stock_items ? invoice.stock_items.length + 2 : 1);
+
+  const tableLeft = (doc.page.width - tableWidth) / 2;
+
+  tableHeaders.forEach((header, colIndex) => {
+    doc.rect(tableLeft + cellWidth * colIndex, tableTop, cellWidth, cellHeight).fillAndStroke('#CCCCCC', 'black');
+    doc.fontSize(8).fill('black').text(header, tableLeft + cellWidth * colIndex + cellPadding, tableTop + cellPadding, { width: cellWidth - cellPadding * 2, align: 'center' });
+  });
+
+  if (invoice.stock_items && invoice.stock_items.length > 0) {
+    invoice.stock_items.forEach((item, rowIndex) => {
+      const rowTop = tableTop + cellHeight + cellHeight * rowIndex;
+      tableHeaders.forEach((header, colIndex) => {
+        let cellContent = item[header.toLowerCase().replace(' ', '_')] || 'N/A';
+        if (header === 'Amount') {
+          const amount = item['stock_price'] * item['stock_quantity'];
+          cellContent = amount.toString();
+          totalAmount += amount;
+        }
+        const cellLeft = tableLeft + cellWidth * colIndex;
+        doc.rect(cellLeft, rowTop, cellWidth, cellHeight).fillAndStroke('#FFFFFF', 'black');
+        const cellOptions = { width: cellWidth - cellPadding * 2, align: 'center' };
+        doc.fontSize(8).fill('black').text(cellContent, cellLeft + cellPadding, rowTop + cellPadding, cellOptions);
+      });
+    });
+
+    // Total Amount
+    const totalRowTop = tableTop + cellHeight + cellHeight * invoice.stock_items.length;
+    doc.rect(tableLeft, totalRowTop, tableWidth, cellHeight).fillAndStroke('#CCCCCC', 'black');
+    doc.fontSize(8).fill('black').text('Total', tableLeft + cellWidth * 4 - cellPadding, totalRowTop + cellPadding, { width: cellWidth - cellPadding * 1, align: 'center' });
+    doc.fontSize(8).fill('black').text(totalAmount.toString(), tableLeft + cellWidth * 5 - cellPadding, totalRowTop + cellPadding, { width: cellWidth - cellPadding * 2, align: 'right' });
+  }
+  doc.end();
+  return doc;
+}

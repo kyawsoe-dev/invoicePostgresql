@@ -10,11 +10,13 @@
   <link rel="stylesheet" href="/stylesheets/fontawesome.min.css"> 
   <link rel="stylesheet" href="/stylesheets/pagination.css">
   <link rel="stylesheet" href="/stylesheets/sweetalert.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/2.0.7/css/dataTables.dataTables.css">
   <script src="/assets/jquery.js"></script>
   <script src="/javascripts/bootstrap.min.js"></script>
   <script src="/javascripts/canvas.min.js"></script>
   <script src="/javascripts/invoice_list.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdn.datatables.net/2.0.7/js/dataTables.js"></script>
 </head>
 <body>
 <div>
@@ -23,11 +25,11 @@
             <div class="col-12 col-lg-12">
               <h4 class="pt-3">Invoice List</h4>
                 <div class="header-container">
-                    <a href="https://crudinvoicepostgresql.onrender.com/api/invoice/listpage">Clear Filter</a>
-                    <!-- <a href="http://localhost:3001/api/invoice/listpage" id="clearFilter">Clear Filter</a> -->
+                    <!-- <a href="https://crudinvoicepostgresql.onrender.com/api/invoice/listpage">Clear Filter</a> -->
+                    <!-- <a href="http://localhost:3001/api/invoice/listpage" id="clearFilter">Clear Filter</a>
                     <form id="searchForm">
                         <input type="search" name="search" id="searchInput" placeholder="Enter Search Input" value="<%= query.search %>">
-                    </form>
+                    </form> -->
                 </div>
                 <a href="/api/invoice/exportcsv" class="btn btn-md btn-secondary mb-1 exportCSV">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-filetype-csv" viewBox="0 0 16 16">
@@ -47,18 +49,18 @@
                   </svg>
                   Download PDF
                 </a>
-              <table>
+              <table id="invoiceTable" class="display hover table table-striped table-bordered table-responsive" style="width:100%">
                   <thead>
                     <tr>
-                      <th>#</th>
-                      <th style="width: 120px;">Invoice No</th>
-                      <th>Customer Name</th>
-                      <th>Customer Phone</th>
-                      <th>Customer Email</th>
-                      <th>Customer Address</th>
-                      <th>Invoice Date</th>
-                      <th>Total Amount</th>
-                      <th style="width: 165px;">Action</th>
+                      <th>ID</th>
+                      <th style="width: 130px;">Invoice No</th>
+                      <th>Name</th>
+                      <th>Phone</th>
+                      <th>Email</th>
+                      <th>Address</th>
+                      <th style="width: 150px;">Date</th>
+                      <th>Total</th>
+                      <th style="width: 180px;">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -75,10 +77,10 @@
                       %>
                           
                         <tr>
-                          <td><%= invoice.custom_id %></td>
+                          <td><%= invoice.invoice_id %></td>
                           <td><%= invoice.invoice_no %></td>
                           <td><%= invoice.customer_name %></td>
-                          <td><%= invoice.customer_phone %></td>
+                          <td>0<%= invoice.customer_phone %></td>
                           <td><%= invoice.customer_email %></td>
                           <td><%= invoice.customer_address %></td>
                           <td><%= invoice.invoice_date %></td>
@@ -106,16 +108,19 @@
                           </td>
                         </tr>
                       <% }); %>
-                    <% } else { %>
-                      <tr>
-                        <td colspan="9">No data available</td>
-                      </tr>
-                    <% } %>
+                    <% }%>
                   </tbody>
+                  <tfoot>
+                    <tr>
+                      <th class="text-right" colspan="7">Total Amount per Page</th>
+                      <th id="totalAmountFooter"></th> 
+                      <th></th>
+                    </tr>
+                  </tfoot>
                 </table>
                 <!-- Modal -->
                 <div id="invoiceViewModal" class="modal animated fadeIn bs-example-modal-lg bs-example-modal-center ml-5" tabindex="-1" role="dialog" aria-hidden="true">
-                    <div class="modal-dialog modal-xl modal-dialog-centered">
+                    <div class="modal-dialog modal-lg modal-dialog-centered">
                         <div class="modal-content">
                             <div class="modal-header justify-content-between bg-white">
                                 <h5 class="page-title text-dark">Invoice Detail View</h5>
@@ -131,11 +136,18 @@
                                     <path fill-rule="evenodd" d="M7.646 10.854a.5.5 0 0 0 .708 0l2-2a.5.5 0 0 0-.708-.708L8.5 9.293V5.5a.5.5 0 0 0-1 0v3.793L6.354 8.146a.5.5 0 1 0-.708.708z"/>
                                     <path d="M4.406 3.342A5.53 5.53 0 0 1 8 2c2.69 0 4.923 2 5.166 4.579C14.758 6.804 16 8.137 16 9.773 16 11.569 14.502 13 12.687 13H3.781C1.708 13 0 11.366 0 9.318c0-1.763 1.266-3.223 2.942-3.593.143-.863.698-1.723 1.464-2.383m.653.757c-.757.653-1.153 1.44-1.153 2.056v.448l-.445.049C2.064 6.805 1 7.952 1 9.318 1 10.785 2.23 12 3.781 12h8.906C13.98 12 15 10.988 15 9.773c0-1.216-1.02-2.228-2.313-2.228h-.5v-.5C12.188 4.825 10.328 3 8 3a4.53 4.53 0 0 0-2.941 1.1z"/>
                                   </svg>
-                              </button>
+                                </button>
+
+                                <button class="btn btn-success btn-icon pdfDownload" id="pdfDownload">
+                                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-filetype-pdf" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd" d="M14 4.5V14a2 2 0 0 1-2 2h-1v-1h1a1 1 0 0 0 1-1V4.5h-2A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v9H2V2a2 2 0 0 1 2-2h5.5zM1.6 11.85H0v3.999h.791v-1.342h.803q.43 0 .732-.173.305-.175.463-.474a1.4 1.4 0 0 0 .161-.677q0-.375-.158-.677a1.2 1.2 0 0 0-.46-.477q-.3-.18-.732-.179m.545 1.333a.8.8 0 0 1-.085.38.57.57 0 0 1-.238.241.8.8 0 0 1-.375.082H.788V12.48h.66q.327 0 .512.181.185.183.185.522m1.217-1.333v3.999h1.46q.602 0 .998-.237a1.45 1.45 0 0 0 .595-.689q.196-.45.196-1.084 0-.63-.196-1.075a1.43 1.43 0 0 0-.589-.68q-.396-.234-1.005-.234zm.791.645h.563q.371 0 .609.152a.9.9 0 0 1 .354.454q.118.302.118.753a2.3 2.3 0 0 1-.068.592 1.1 1.1 0 0 1-.196.422.8.8 0 0 1-.334.252 1.3 1.3 0 0 1-.483.082h-.563zm3.743 1.763v1.591h-.79V11.85h2.548v.653H7.896v1.117h1.606v.638z"/>
+                                  </svg>
+                                </button>
+
                                 <p data-dismiss="modal" aria-label="Close"><span class="text-dark" aria-hidden="true">&times;</span></p>
                             </div>
                             <div class="modal-body" id="modal-body"> 
-                                
+                              
                             </div>
                         </div>
                     </div>
@@ -162,7 +174,6 @@
                   </div>
               </div>
               <!-- /.Modal -->
-                <%- include('../views/components/pagination.ejs') %>
             </div>
         </div>
     </div>
@@ -213,6 +224,23 @@
     </form>
 </div>
 <script>
+
+  new DataTable('#invoiceTable', {
+      lengthMenu: [
+          [10, 25, 50,100,200, -1],
+          [10, 25, 50,100,200, 'All']
+      ],
+      responsive: true,
+      processing: true,
+      "footerCallback": function(row, data, start, end, display) {
+      var api = this.api();
+      var pageTotal = api.column(7, { page: 'current' }).data().reduce(function(a, b) {
+        return parseFloat(a) + parseFloat(b.replace(/,/g, ''));
+      }, 0);
+      $('#totalAmountFooter').html(pageTotal.toFixed(2));
+    }
+  });
+
   function handleFile() {
   const fileInput = document.getElementById('fileInput');
   const fileDisplayArea = document.getElementById('fileDisplayArea');

@@ -21,14 +21,15 @@ $(document).on("click", "#btnView", function () {
                 let modalContent = `
                     <div class="row">
                         <div class="col-sm-6 text-grey-m2">
-                            <div class="my-1"><span class="text-600 text-90">Customer Name:</span> ${data.customer_name}</div>
-                            <div class="my-1"><span class="text-600 text-90">Customer Phone:</span> ${data.customer_phone}</div>
-                            <div class="my-1"><span class="text-600 text-90">Customer Email:</span> ${data.customer_email}</div>
-                            <div class="my-1"><span class="text-600 text-90">Customer Address:</span> ${data.customer_address}</div>
+                            <div class="my-1"><span class="text-600 text-90">Name:</span> ${data.customer_name}</div>
+                            <div class="my-1"><span class="text-600 text-90">Phone:</span> ${data.customer_phone}</div>
+                            <div class="my-1"><span class="text-600 text-90">Email:</span> ${data.customer_email}</div>
+                            <div class="my-1"><span class="text-600 text-90">Address:</span> ${data.customer_address}</div>
                         </div>
                         <div class="text-95 col-sm-6 align-self-start d-sm-flex justify-content-end">
                             <hr class="d-sm-none" />
                             <div class="text-grey-m2">
+                                <input type="hidden" id="modal_invoice_id" class="modal_invoice_id" value="${data.invoice_id}">
                                 <div class="my-2"><span class="text-600 text-90">Invoice ID:</span> ${data.invoice_id}</div>
                                 <div class="my-2"><span class="text-600 text-90">Invoice No:</span> ${data.invoice_no}</div>
                                 <div class="my-2"><span class="text-600 text-90">Invoice Date:</span> ${data.invoice_date}</div>
@@ -38,11 +39,11 @@ $(document).on("click", "#btnView", function () {
                     <div class="mt-4">
                         <div class="row text-600 text-primary bgc-default-tp1 py-25">
                             <div class="d-none d-sm-block col-1">#</div>
-                            <div class="col-3">Stock Code</div>
-                            <div class="d-none d-sm-block col-2">Stock Price</div>
-                            <div class="col-2">Stock Quantity</div>
+                            <div class="col-3">Code</div>
+                            <div class="d-none d-sm-block col-2">Price</div>
+                            <div class="col-2">Quantity</div>
                             <div class="col-2">Amount</div>
-                            <div class="d-none d-sm-block">Stock Description</div> 
+                            <div class="d-none d-sm-block">Description</div> 
                         </div>
                         <hr class="row brc-default-l1 mx-n1 mb-2" />
                 `;
@@ -348,5 +349,29 @@ $(document).ready(function() {
         console.error('Error uploading file:', error);
       }
     });
+  });
+});
+
+
+$(document).on("click", "#pdfDownload", function () {
+  var id = $('#modal_invoice_id').val();
+  $.ajax({
+      url: `/api/invoice/downloadpdfbyid/${id}`,
+      method: "GET",
+      success: function (response) {
+        Swal.fire({
+          icon: "success",
+          title: "PDF downloaded successfully",
+          showConfirmButton: false,
+          timer: 1500,
+        }).then((result) => {
+          $("#invoiceViewModal").modal("hide");
+        });
+      },
+      error: function (xhr, status, error) {
+          console.log("Error Status:", status);
+          console.log("Error Response:", xhr.responseText);
+          console.log("Error Message:", error);
+      }
   });
 });
