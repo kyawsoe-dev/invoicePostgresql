@@ -94,6 +94,7 @@ exports.getInvoice = async (req, res) => {
       hasNextPage: ITEMS_PER_PAGE * page < totalItems,
       hasPreviousPage: page > 1,
       nextPage: page + 1,
+      totalItems: totalItems,
       previousPage: page - 1,
       perPage: ITEMS_PER_PAGE,
       lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE)
