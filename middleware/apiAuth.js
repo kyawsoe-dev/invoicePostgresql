@@ -1,6 +1,5 @@
 const jwt = require('jsonwebtoken');
 const sql = require('../helper/database');
-require('dotenv').config();
 
 const apiVerifyToken = async (req, res, next) => {
   try {
@@ -9,7 +8,7 @@ const apiVerifyToken = async (req, res, next) => {
       return res.status(401).json({ message: 'Authentication required' });
     }
 
-    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+    const decodedToken = jwt.verify(token, 'oks@094371');
     const query = 'SELECT * FROM tbl_customer WHERE id = $1';
     const { rows } = await sql.query(query, [decodedToken.userId]);
 

@@ -1,5 +1,4 @@
 const invoiceModel = require("../model/invoice");
-require('dotenv').config();
 const jwt = require('jsonwebtoken');
 const ITEMS_PER_PAGE = 10;
 const path = require('path');
@@ -11,7 +10,7 @@ exports.getInvoicePage = async(req, res) => {
     return res.status(401).json({ message: 'Authentication required' });
   }
 
-  const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+  const decodedToken = jwt.verify(token, 'oks@094371');
   const name = decodedToken.name;
   res.render('invoice', {
     title: "Invoice Page",
@@ -68,7 +67,7 @@ exports.getInvoiceListPage = async (req, res) => {
       return res.status(401).json({ message: 'Authentication required' });
     }
   
-    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+    const decodedToken = jwt.verify(token, 'oks@094371');
     const name = decodedToken.name;
     res.render('invoice_list', {
       title: "Invoice List Page",

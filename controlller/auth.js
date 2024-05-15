@@ -70,7 +70,7 @@ exports.Logout = async (req, res) => {
 exports.getProfilePage = async (req, res) => {
   try {
     const token = req.cookies.token;
-    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+    const decodedToken = jwt.verify(token, 'oks@094371');
     const name = decodedToken.name;
     const id = decodedToken.userId;
     if (!token) {
@@ -94,7 +94,7 @@ exports.getProfilePage = async (req, res) => {
 exports.getProfile = async (req, res) => {
   try {
     const token = req.cookies.token;
-    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+    const decodedToken = jwt.verify(token, 'oks@094371');
     const id = decodedToken.userId;
 
     if (!token) {

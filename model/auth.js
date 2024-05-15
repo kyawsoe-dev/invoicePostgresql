@@ -1,7 +1,6 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const sql = require('../helper/database');
-require('dotenv').config();
 
 class AuthModel {
   static async postLogin(email, password) {
@@ -21,8 +20,7 @@ class AuthModel {
         return null;
       }
 
-      const token = jwt.sign({ userId: user.id, name: user.customer_name }, process.env.JWT_SECRET, { expiresIn: '1d' });
-      console.log(token, "TOKEN")
+      const token = jwt.sign({ userId: user.id, name: user.customer_name }, 'oks@094371', { expiresIn: '1d' });
       return { token, userId: user.id, name: user.customer_name };
     } catch (error) {
       console.log(error, "LOGIN ERROR")
