@@ -10,7 +10,7 @@ router.get('/profilepage', [verifyToken], authController.getProfilePage);
 
 router.post('/login', authController.postLogin);
 router.get('/logout', authController.Logout);
-router.get('/profile', authController.getProfile);
+router.get('/profile', [verifyToken], authController.getProfile);
 
 
 module.exports = router;

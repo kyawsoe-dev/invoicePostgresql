@@ -23,3 +23,20 @@ exports.getCutomer = async (req, res) => {
     res.status(500).json({ message: 'Internal Server Error' });
   }
 };
+
+
+exports.createCustomer = async (req, res) => {
+  const body = req.body;
+  console.log(body, "Customer Data");
+  try {
+    
+    await customerModel.createCustomer(body);
+
+    res
+      .status(200)
+      .json({ message: "Customer Created Successfully"});
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
