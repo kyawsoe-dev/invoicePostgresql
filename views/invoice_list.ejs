@@ -19,11 +19,20 @@
   <script src="https://cdn.datatables.net/2.0.7/js/dataTables.js"></script>
 </head>
 <body>
+<%- include("./components/navbar.ejs"); %>
 <div>
     <div class="container px-0" id="invoice-list-container">
         <div class="row">
             <div class="col-12 col-lg-12">
-              <h4 class="pt-3">Invoice List</h4>
+              <div class="row">
+                <a class="nav-link text-secondary" href="/" style="font-size: large;">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-house-door" viewBox="0 0 16 16">
+                    <path d="M8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4.5a.5.5 0 0 0 .5-.5v-4h2v4a.5.5 0 0 0 .5.5H14a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293zM2.5 14V7.707l5.5-5.5 5.5 5.5V14H10v-4a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5v4z"/>
+                  </svg>
+                  Home &GreaterGreater;
+                  </a>
+                  <a class="nav-link text-secondary" href="/api/invoice/listpage" style="font-size: large;">Invoice List</a>
+              </div>
                 <div class="header-container">
                     <!-- <a href="https://crudinvoicepostgresql.onrender.com/api/invoice/listpage">Clear Filter</a> -->
                     <!-- <a href="http://localhost:3001/api/invoice/listpage" id="clearFilter">Clear Filter</a>
@@ -49,6 +58,9 @@
                   </svg>
                   Download PDF
                 </a>
+                <div class="text-center">
+                  <h6>Total Invoice Count  &rAarr; <%= data.length %></h6>
+                </div>
               <table id="invoiceTable" class="display hover table table-striped table-bordered table-responsive" style="width:100%">
                   <thead>
                     <tr>
@@ -58,7 +70,7 @@
                       <th>Phone</th>
                       <th>Email</th>
                       <th>Address</th>
-                      <th style="width: 150px;">Date</th>
+                      <th style="width: 190px;">Date</th>
                       <th>Total</th>
                       <th style="width: 180px;">Actions</th>
                     </tr>
@@ -179,6 +191,15 @@
     </div>
 
     <form id="invoiceEditForm">
+      <div class="row" style="margin-left: 100px;">
+        <a class="nav-link text-secondary" href="/api/invoice/listpage" style="font-size: large;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-house-door" viewBox="0 0 16 16">
+            <path d="M8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4.5a.5.5 0 0 0 .5-.5v-4h2v4a.5.5 0 0 0 .5.5H14a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293zM2.5 14V7.707l5.5-5.5 5.5 5.5V14H10v-4a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5v4z"/>
+          </svg>
+          Invoice List &GreaterGreater;
+          </a>
+          <a class="nav-link text-secondary" href="javascript:void(0)" style="font-size: large;">Invoice Edit Page</a>
+      </div>
       <h4 class="sale-title ml-5 mt-2 mb-2">Sales Invoice</h4>
         <div class="container">
             <input type="hidden" name="invoice_id" id="invoice_id">
@@ -201,8 +222,11 @@
         </div>
       
         <h4 class="stock-title ml-5">Stock List</h4>
-        <input type="button" class="btn btn-secondary mb-2 add_button" value="ADD"> 
-        <table>
+        <div class="mr-3">
+          <input type="button" class="btn btn-secondary btn-md mb-2 add_button" value="ADD"> 
+        </div>
+        <div id="editTable">
+          <table>
           <thead>
             <tr>
               <th>Stock Code</th>
@@ -217,11 +241,17 @@
             
           </tbody>
         </table>
+        </div>
         <div class="total">Total Amount: <span id="totalAmount">0</span></div>
         <input type="hidden" name="total_amount" value="0">
         <br>
         <input type="button" class="btn btn-secondary" id="btnUpdate" name="btnUpdate" value="UPDATE">
     </form>
+    <footer class="text-center text-lg-start text-white" style="background-color: #1c2331; margin-top: 10px;">
+      <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.2)">
+        <a class="text-white" href="/"> © 2024 All Right Reserved</a>
+      </div>
+    </footer>  
 </div>
 <script>
 
@@ -235,9 +265,9 @@
       "footerCallback": function(row, data, start, end, display) {
       var api = this.api();
       var pageTotal = api.column(7, { page: 'current' }).data().reduce(function(a, b) {
-        return parseFloat(a) + parseFloat(b.replace(/,/g, ''));
+        return parseInt(a) + parseInt(b.replace(/,/g, ''));
       }, 0);
-      $('#totalAmountFooter').html(pageTotal.toFixed(2));
+      $('#totalAmountFooter').html(pageTotal.toLocaleString());
     }
   });
 

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="icon" href="/images/invoice.png" type="image/x-icon"/>
+    <link rel="stylesheet" href="/stylesheets/bootstrap.min.css"> 
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.0.7/css/dataTables.dataTables.css">
+    <script src="/assets/jquery.js"></script>
+    <script src="/javascripts/bootstrap.min.js"></script>
+    <script src="https://cdn.datatables.net/2.0.7/js/dataTables.js"></script>
+</head>
+<body>
+    <%- include("./components/navbar.ejs"); %>
+    <div class="container">
+        <div class="col-12 col-lg-12">
+            <div class="row">
+                <a class="nav-link text-secondary" href="/" style="font-size: large;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-house-door" viewBox="0 0 16 16">
+                    <path d="M8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4.5a.5.5 0 0 0 .5-.5v-4h2v4a.5.5 0 0 0 .5.5H14a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293zM2.5 14V7.707l5.5-5.5 5.5 5.5V14H10v-4a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5v4z"/>
+                </svg>
+                Home &GreaterGreater;
+                </a>
+                <a class="nav-link text-secondary" href="/api/customer/listpage" style="font-size: large;">Customer List</a>
+        </div>
+        <table id="userTable" class="display hover table table-striped table-bordered" style="width:100%">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>Email</th>
+                <th>Address</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% if(data && data.length > 0) { %>
+                <% data.forEach((user) => { %>
+                  <tr>
+                    <td><%= user.id %></td>
+                    <td><%= user.customer_name %></td>
+                    <td>0<%= user.customer_phone %></td>
+                    <td><%= user.customer_email %></td>
+                    <td><%= user.customer_address %></td>
+                    <td>
+                    <button type="button" class="btn btn-icon btn-md btnView" id="btnView" data-id="<%= user.id %>" data-toggle="modal" data-target="#invoiceViewModal" title="View Detail">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-fill" viewBox="0 0 16 16">
+                            <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0"/>
+                            <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8m8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7"/>
+                        </svg>
+                    </button>
+
+                    <button type="button" class="btn btn-icon btn-md btnEdit" id="btnEdit" data-id="<%= user.id %>" title="Edit Invoice">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                        <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+                        <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/>
+                      </svg>
+                    </button>
+                    </td>
+                  </tr>
+                <% }); %>
+              <% }%>
+            </tbody>
+          </table>
+    </div>
+    
+
+    <footer class="text-center text-lg-start text-white" style="background-color: #1c2331; margin-top: 122px;">
+      <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.2)">
+        <a class="text-white" href="/"> © 2024 All Right Reserved</a>
+      </div>
+    </footer>  
+  </div>
+
+  <script>
+    new DataTable('#userTable', {
+      lengthMenu: [
+          [10, 25, 50,100,200, -1],
+          [10, 25, 50,100,200, 'All']
+      ],
+      responsive: true,
+      processing: true
+  });
+  </script>
+</body>
+</html>

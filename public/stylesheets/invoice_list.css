@@ -5,11 +5,6 @@ body {
     color: #484b51;
 }
 
-table {
-    width: 100%;
-    /* border-collapse: collapse; */
-}
-
 th, td {
     border: 1px solid #ddd;
     padding: 15px;
@@ -171,4 +166,21 @@ input[type="search"] {
   }
   
 
-  
+  ul {
+    list-style-type: none;
+    font-size: normal;
+  }
+
+  #editTable {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 80%;
+    margin: 0 auto;
+    text-align: center;
+    padding: 10px !important;
+}
+
+table {
+  width: 100%;
+}

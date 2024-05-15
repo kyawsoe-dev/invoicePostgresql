@@ -1,21 +1,23 @@
 var express = require('express');
 var router = express.Router();
 var invoiceController = require('../controlller/invoice');
+var verifyToken = require('../middleware/auth');
+var apiVerifyToken = require('../middleware/apiAuth');
 
 
-router.get('/page', invoiceController.getInvoicePage);
-router.get('/listpage', invoiceController.getInvoiceListPage);
+router.get('/page', [verifyToken], invoiceController.getInvoicePage);
+router.get('/listpage', [verifyToken], invoiceController.getInvoiceListPage);
 
 // for API
-router.get('/list', invoiceController.getInvoice);
-router.get('/exportcsv', invoiceController.exportCSV);
-router.post('/importcsv', invoiceController.importCSV);
-router.get('/downloadpdf', invoiceController.downloadPDF);
-router.get('/downloadpdfbyid/:id', invoiceController.downloadPDFByID);
-router.post('/create', invoiceController.createInvoice);
-router.get('/edit/:id', invoiceController.getInvoiceById);
-router.put('/edit/:id', invoiceController.postUpdateById);
-router.delete('/delete/:id', invoiceController.deleteInvoiceById);
+router.get('/list', [apiVerifyToken], invoiceController.getInvoice);
+router.get('/exportcsv', [apiVerifyToken], invoiceController.exportCSV);
+router.post('/importcsv', [apiVerifyToken], invoiceController.importCSV);
+router.get('/downloadpdf', [apiVerifyToken], invoiceController.downloadPDF);
+router.get('/downloadpdfbyid/:id', [apiVerifyToken], invoiceController.downloadPDFByID);
+router.post('/create', [apiVerifyToken], invoiceController.createInvoice);
+router.get('/edit/:id', [apiVerifyToken], invoiceController.getInvoiceById);
+router.put('/edit/:id', [apiVerifyToken], invoiceController.postUpdateById);
+router.delete('/delete/:id', [apiVerifyToken], invoiceController.deleteInvoiceById);
 
 
 

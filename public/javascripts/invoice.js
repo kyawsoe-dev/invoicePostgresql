@@ -14,7 +14,7 @@ $(document).ready(function() {
         <td><input type="number" step="0.00" name="stock_price[]" placeholder="Enter Stock Price"></td>
         <td><input type="number" name="stock_quantity[]" placeholder="Enter Stock Quantity"></td>
         <td><input type="text" name="amount[]" readonly></td>
-        <td><button class="btn remove_button">Remove</button></td>
+        <td><button class="btn btn-secondary remove_button">Remove</button></td>
       </tr>
     `;
     $("tbody").append(newRow);

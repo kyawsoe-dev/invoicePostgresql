@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="/images/invoice.png" type="image/x-icon"/>
+    <link rel="stylesheet" href="/stylesheets/bootstrap.min.css"> 
+    <script src="/assets/jquery.js"></script>
+    <script src="/javascripts/bootstrap.min.js"></script>
     <title><%= title %></title>
     <style>
         h3 {
@@ -21,14 +24,22 @@
     </style>
 </head>
 <body>
+    <%- include("./components/navbar.ejs"); %>
     <div class="container">
         <h3>
-            WELCOME <br>
+            WELCOME  <br>
             <img src="https://cultofthepartyparrot.com/parrots/hd/headbangingparrot.gif" width="150" height="150"/> <br>
             <a href="/api/invoice/listpage">Invoice List  &rArr;  </a>
             <br>
             <a href="/api/invoice/page">Invoice Page  &rArr;  </a>
         </h3>
     </div>
+
+    <footer class="text-center text-lg-start text-white" style="background-color: #1c2331; margin-top: 122px;">
+      <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.2)">
+        <a class="text-white" href="/"> © 2024 All Right Reserved</a>
+      </div>
+    </footer>  
+  </div>
 </body>
 </html>

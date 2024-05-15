@@ -10,6 +10,7 @@ var indexRouter = require('./routes/index');
 var stockRouter = require('./routes/stock');
 var customerRouter = require('./routes/customer');
 var invoiceRouter = require('./routes/invoice');
+var authRouter = require('./routes/auth');
 
 var app = express();
 
@@ -35,6 +36,7 @@ app.use('/', indexRouter);
 app.use('/api/stock', stockRouter);
 app.use('/api/customer', customerRouter);
 app.use('/api/invoice', invoiceRouter);
+app.use('/api/auth', authRouter);
 
 app.use((req, res, next) => {
   res.send(`<h1>Route Not Found </h1>`);

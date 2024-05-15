@@ -1,4 +1,5 @@
 const sql = require("../helper/database");
+const bcrypt = require('bcryptjs');
 
 class Invoice {
   // GET invoice page
@@ -8,7 +9,7 @@ class Invoice {
         tbliv.id AS invoice_id, 
         tbliv.invoice_no,
         tbliv.total_amount, 
-        TO_CHAR(tbliv.invoice_date, 'DD-MM-YYYY HH12PM') AS invoice_date,
+        TO_CHAR(tbliv.invoice_date, 'DD-MM-YYYY HH:MI AM') AS invoice_date,
         tblcu.id AS customer_id,
         tblcu.customer_name, 
         tblcu.customer_phone,
@@ -78,7 +79,7 @@ class Invoice {
         tbliv.id AS invoice_id, 
         tbliv.invoice_no,
         tbliv.total_amount, 
-        TO_CHAR(tbliv.invoice_date, 'DD-MM-YYYY HH12PM') AS invoice_date,
+        TO_CHAR(tbliv.invoice_date, 'DD-MM-YYYY HH:MI AM') AS invoice_date,
         tblcu.id AS customer_id,
         tblcu.customer_name, 
         tblcu.customer_phone,
@@ -151,15 +152,19 @@ static async createInvoice(data) {
     } else {
       const customerInsertQuery = `
             INSERT INTO tbl_customer 
-            (customer_name, customer_phone, customer_email, customer_address) 
-            VALUES ($1, $2, $3, $4)
+            (customer_name, customer_phone, customer_email, customer_address, customer_password) 
+            VALUES ($1, $2, $3, $4, $5)
             RETURNING id
           `;
+
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash("asdfasdf", salt);
       const customerInsertParams = [
         data.customer_name,
         data.customer_phone,
         data.customer_email,
         data.customer_address,
+        hashedPassword
       ];
 
       const customerInsertResult = await sql.query(
@@ -328,15 +333,18 @@ static async createCustomer(data) {
   try {
     const customerInsertQuery = `
       INSERT INTO tbl_customer 
-      (customer_name, customer_phone, customer_email, customer_address) 
-      VALUES ($1, $2, $3, $4)
+      (customer_name, customer_phone, customer_email, customer_address, customer_password) 
+      VALUES ($1, $2, $3, $4, $5)
       RETURNING id
     `;
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash("asdfasdf", salt);
     const customerInsertParams = [
       data.customer_name,
       data.customer_phone,
       data.customer_email,
       data.customer_address,
+      hashedPassword
     ];
 
     const customerInsertResult = await sql.query(
@@ -616,15 +624,18 @@ static async importCSV(data) {
     } else {
       const customerInsertQuery = `
             INSERT INTO tbl_customer 
-            (customer_name, customer_phone, customer_email, customer_address) 
-            VALUES ($1, $2, $3, $4)
+            (customer_name, customer_phone, customer_email, customer_address, customer_password) 
+            VALUES ($1, $2, $3, $4, $5)
             RETURNING id
           `;
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash("asdfasdf", salt);
       const customerInsertParams = [
         data.customer_name,
         data.customer_phone,
         data.customer_email,
         data.customer_address,
+        hashedPassword
       ];
 
       const customerInsertResult = await sql.query(
