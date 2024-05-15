@@ -25,6 +25,7 @@ class AuthModel {
       console.log(token, "TOKEN")
       return { token, userId: user.id, name: user.customer_name };
     } catch (error) {
+      console.log(error, "LOGIN ERROR")
       throw new Error("Authentication Failed");
     }
   }
