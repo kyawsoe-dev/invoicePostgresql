@@ -53,8 +53,8 @@ $(document).ready(function() {
       contentType: 'application/json',
       success: function(response) {
         console.log('Form data submitted successfully:', response);
-        // window.location.href = 'http://localhost:3001/api/invoice/listpage';
-        window.location.href = 'https://crudinvoicepostgresql.onrender.com/api/invoice/listpage';
+        window.location.href = 'http://localhost:3001/api/invoice/listpage';
+        // window.location.href = 'https://crudinvoicepostgresql.onrender.com/api/invoice/listpage';
       },
       error: function(xhr, status, error) {
         console.error('Error submitting form data:', error);  

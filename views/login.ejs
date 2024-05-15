@@ -45,7 +45,16 @@
                     data: $("#loginForm").serialize(),
                     success: function (results) {
                         if (results) {
-                            location.href = '/';
+                            Swal.fire({
+                            icon: "success",
+                            title: "Login Success !!",
+                            showConfirmButton: false,
+                            timer: 1000,
+                            }).then((result) => {
+                            if (result.dismiss === Swal.DismissReason.timer) {
+                                window.location.href = '/';
+                            }
+                        });
                         } else {
                             Swal.fire({
                                 icon: "error",

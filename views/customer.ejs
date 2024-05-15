@@ -10,6 +10,8 @@
     <script src="/assets/jquery.js"></script>
     <script src="/javascripts/bootstrap.min.js"></script>
     <script src="https://cdn.datatables.net/2.0.7/js/dataTables.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/javascripts/customer.js"></script>
 </head>
 <body>
     <%- include("./components/navbar.ejs"); %>
@@ -48,13 +50,13 @@
               <% if(data && data.length > 0) { %>
                 <% data.forEach((user) => { %>
                   <tr>
-                    <td><%= user.id %></td>
+                    <td><%= user.custom_id %></td>
                     <td><%= user.customer_name %></td>
                     <td>0<%= user.customer_phone %></td>
                     <td><%= user.customer_email %></td>
                     <td><%= user.customer_address %></td>
                     <td>
-                    <button type="button" class="btn btn-icon btn-md btnEdit" id="btnEdit" data-id="<%= user.id %>" title="Edit User">
+                    <button type="button" class="btn btn-icon btn-md btnEdit" id="btnEdit" data-id="<%= user.id %>" data-toggle="modal" data-target="#editCustomerModal" title="Edit User">
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
                         <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
                         <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/>
@@ -75,6 +77,95 @@
           </table>
     </div>
   </div>
+
+  <div id="addCustomerModal" class="modal animated fadeIn bs-example-modal-lg bs-example-modal-center" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header justify-content-between bg-white">
+                <h5 class="page-title text-dark">Add Customer Form</h5>
+                <p data-dismiss="modal" aria-label="Close"><span class="text-dark" aria-hidden="true">&times;</span></p>
+            </div>
+            <div class="modal-body" id="modal-body">
+              <form id="addCustomerForm">
+                <div class="row">
+                  <div class="col">
+                    <div class="form-group">
+                      <label for="customer_name">Name</label>
+                      <input type="text" name="customer_name" class="form-control customer_name" id="customer_name" placeholder="Enter Customer Name">
+                    </div>
+                    <div class="form-group">
+                      <label for="customer_email">Email</label>
+                      <input type="email" name="customer_email" class="form-control customer_email" id="customer_email" placeholder="Enter Customer Email">
+                    </div>
+                    <div class="form-group">
+                      <label for="customer_phone">Phone</label>
+                      <input type="phone" name="customer_phone" class="form-control customer_phone" id="customer_phone" placeholder="Enter Customer Phone">
+                    </div>
+                    <div class="form-group">
+                      <label for="customer_password">Password</label>
+                      <input type="password" name="customer_password" class="form-control customer_password" id="customer_password" placeholder="Enter Customer Password">
+                    </div>
+
+                    <div class="form-group">
+                      <label for="customer_address">Address</label>
+                      <textarea id="customer_address" class="form-control customer_address" name="customer_address" rows="2" cols="10" placeholder="Enter your Address here ..."></textarea>
+                    </div>
+                    <div class="form-group text-center">
+                      <input type="submit" class="btn btn-secondary w-50" id="btnSubmit" name="btnSubmit" value="SAVE">
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+        </div>
+    </div>
+  </div>
+
+
+  <div id="editCustomerModal" class="modal animated fadeIn bs-example-modal-lg bs-example-modal-center" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header justify-content-between bg-white">
+                <h5 class="page-title text-dark">Edit Customer Form</h5>
+                <p data-dismiss="modal" aria-label="Close"><span class="text-dark" aria-hidden="true">&times;</span></p>
+            </div>
+            <div class="modal-body" id="modal-body">
+              <form id="editCustomerForm">
+                <input type="hidden" name="customer_id" id="customer_id">
+                <div class="row">
+                  <div class="col">
+                    <div class="form-group">
+                      <label for="edit_customer_name">Edit Name</label>
+                      <input type="text" name="edit_customer_name" class="form-control edit_customer_name" id="edit_customer_name" placeholder="Enter Customer Name">
+                    </div>
+                    <div class="form-group">
+                      <label for="edit_customer_email">Edit Email</label>
+                      <input type="email" name="edit_customer_email" class="form-control edit_customer_email" id="edit_customer_email" placeholder="Enter Customer Email">
+                    </div>
+                    <div class="form-group">
+                      <label for="edit_customer_phone">Edit Phone</label>
+                      <input type="phone" name="edit_customer_phone" class="form-control edit_customer_phone" id="edit_customer_phone" placeholder="Enter Customer Phone">
+                    </div>
+                    <div class="form-group">
+                      <label for="edit_customer_password">Edit Password</label>
+                      <input type="password" name="edit_customer_password" class="form-control edit_customer_password" id="edit_customer_password" placeholder="Enter Customer Password">
+                    </div>
+
+                    <div class="form-group">
+                      <label for="edit_customer_address">Edit Address</label>
+                      <textarea id="edit_customer_address" class="form-control edit_customer_address" name="edit_customer_address" rows="2" cols="10" placeholder="Enter your Address here ..."></textarea>
+                    </div>
+                    <div class="form-group text-center">
+                      <input type="button" class="btn btn-secondary w-50" id="btnUpdate" name="btnUpdate" value="UPDATE">
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+        </div>
+    </div>
+  </div>
+
   <footer class="text-center text-lg-start text-white" style="background-color: #1c2331; margin-top: 122px;">
     <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.2)">
       <a class="text-white" href="/"> © 2024 All Right Reserved</a>
@@ -85,6 +176,9 @@
       lengthMenu: [
           [10, 25, 50,100,200, -1],
           [10, 25, 50,100,200, 'All']
+      ],
+      order: [
+        [0, 'asc']
       ],
       responsive: true,
       processing: true
