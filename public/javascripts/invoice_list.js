@@ -328,7 +328,7 @@ $(document).ready(function() {
 
     var formData = new FormData(this);
     $.ajax({
-      url: $(this).attr('action'),
+      url: '/api/invoice/importcsvpage',
       type: 'POST',
       data: formData,
       contentType: false,

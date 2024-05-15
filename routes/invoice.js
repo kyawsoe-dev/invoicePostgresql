@@ -7,6 +7,7 @@ var apiVerifyToken = require('../middleware/apiAuth');
 
 router.get('/page', [verifyToken], invoiceController.getInvoicePage);
 router.get('/listpage', [verifyToken], invoiceController.getInvoiceListPage);
+router.post('/importcsvpage', [verifyToken], invoiceController.importCSV);
 
 // for API
 router.get('/list', [apiVerifyToken], invoiceController.getInvoice);

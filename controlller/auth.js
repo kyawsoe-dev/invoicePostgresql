@@ -25,7 +25,7 @@ exports.postLogin = async (req, res) => {
     const { token, userId, name } = result;
 
     res.cookie('token', token, {
-      httpOnly: true,
+      httpOnly: false,
       maxAge: 24 * 60 * 60 * 1000,
     });
 
