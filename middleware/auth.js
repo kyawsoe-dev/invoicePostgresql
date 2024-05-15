@@ -9,7 +9,7 @@ const verifyToken = async (req, res, next) => {
       return res.redirect('/api/auth/login');
     }
 
-    const decodedToken = jwt.verify(token, 'oks@094371');
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
     const query = 'SELECT * FROM tbl_customer WHERE id = $1';
     const { rows } = await sql.query(query, [decodedToken.userId]);
 

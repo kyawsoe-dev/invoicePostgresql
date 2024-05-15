@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const authModel = require("../model/auth");
+require('dotenv').config();
 
 exports.getLoginPage = async(req, res) => {
   const token = req.cookies.token;
@@ -70,7 +71,7 @@ exports.Logout = async (req, res) => {
 exports.getProfilePage = async (req, res) => {
   try {
     const token = req.cookies.token;
-    const decodedToken = jwt.verify(token, 'oks@094371');
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
     const name = decodedToken.name;
     const id = decodedToken.userId;
     if (!token) {
@@ -94,7 +95,7 @@ exports.getProfilePage = async (req, res) => {
 exports.getProfile = async (req, res) => {
   try {
     const token = req.cookies.token;
-    const decodedToken = jwt.verify(token, 'oks@094371');
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
     const id = decodedToken.userId;
 
     if (!token) {

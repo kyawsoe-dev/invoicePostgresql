@@ -1,3 +1,4 @@
+require('dotenv').config();
 const jwt = require('jsonwebtoken');
 
 exports.getIndexPage = async(req, res) => {
@@ -6,7 +7,7 @@ exports.getIndexPage = async(req, res) => {
       return res.status(401).json({ message: 'Authentication required' });
     }
 
-    const decodedToken = jwt.verify(token, 'oks@094371');
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
     const name = decodedToken.name;
     res.render('index', {
       title: "WELCOME PAGE",

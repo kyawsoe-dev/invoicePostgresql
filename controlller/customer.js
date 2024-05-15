@@ -1,9 +1,10 @@
 const jwt = require('jsonwebtoken');
+require('dotenv').config();
 const customerModel = require('../model/customer');
 
 exports.getCutomerPage = async (req, res) => {
   const token = req.cookies.token;
-  const decodedToken = jwt.verify(token, 'oks@094371');
+  const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
   const name = decodedToken.name;
   try {
     const customer = await customerModel.getCustomers();
