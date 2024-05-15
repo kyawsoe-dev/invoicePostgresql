@@ -26,6 +26,7 @@ const verifyToken = async (req, res, next) => {
     req.user = user;
     next();
   } catch (error) {
+    console.log(error);
     if (error instanceof jwt.TokenExpiredError) {
       return res.status(401).json({ message: 'Token Expired' });
     } else if (error instanceof jwt.JsonWebTokenError) {
