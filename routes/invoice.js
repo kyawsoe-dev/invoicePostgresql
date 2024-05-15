@@ -5,11 +5,11 @@ var verifyToken = require('../middleware/auth');
 var apiVerifyToken = require('../middleware/apiAuth');
 
 
-router.get('/page', [verifyToken], invoiceController.getInvoicePage);
+router.get('/page', invoiceController.getInvoicePage);
 router.get('/listpage', invoiceController.getInvoiceListPage);
 
 // for API
-router.get('/list', [apiVerifyToken], invoiceController.getInvoice);
+router.get('/list', invoiceController.getInvoice);
 router.get('/exportcsv', [apiVerifyToken], invoiceController.exportCSV);
 router.post('/importcsv', invoiceController.importCSV);
 router.get('/downloadpdf', [apiVerifyToken], invoiceController.downloadPDF);
