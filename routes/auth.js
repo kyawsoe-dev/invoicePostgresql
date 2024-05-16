@@ -11,7 +11,7 @@ router.get('/profilepage', [verifyToken], authController.getProfilePage);
 
 router.post('/login', authController.postLogin);
 router.get('/logout', [apiVerifyToken], authController.Logout);
-router.get('/profile', [apiVerifyToken], authController.getProfile);
+router.get('/profile', [apiVerifyToken], authController.getProfileAPI);
 
 
 module.exports = router;

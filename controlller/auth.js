@@ -115,3 +115,28 @@ exports.getProfile = async (req, res) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
+
+
+exports.getProfileAPI = async (req, res) => {
+  try {
+    console.log(req.headers, "Req Headers Profile");
+    
+    const id = req.headers.userId;
+
+    if (!id) {
+      return res.status(401).json({ message: "User ID Not Found" });
+    }
+
+    const user = await authModel.getProfile(id);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json({ message: "User Profile", data: user });
+
+  } catch (error) {
+    console.error("Error fetching profile:", error.message);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
