@@ -91,36 +91,10 @@ exports.getProfilePage = async (req, res) => {
   }
 };
 
-
-exports.getProfile = async (req, res) => {
-  try {
-    const token = req.cookies.token;
-    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
-    const id = decodedToken.userId;
-
-    if (!token) {
-      return res.status(401).json({ message: "Unauthorized: No token provided" });
-    }
-
-    const user = await authModel.getProfile(id);
-
-    if (!user) {
-      return res.status(404).json({ message: "User not found or token expired" });
-    }
-
-    res.status(200).json({ message: "User Profile", data: user });
-
-  } catch (error) {
-    console.error("Error fetching profile:", error.message);
-    res.status(500).json({ message: "Internal Server Error" });
-  }
-};
-
-
 exports.getProfileAPI = async (req, res) => {
   try {
     console.log(req.headers, "Req Headers Profile");
-    
+
     const id = req.headers.userId;
 
     if (!id) {
