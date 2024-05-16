@@ -3,7 +3,7 @@ $(document).ready(function() {
     e.preventDefault();
     let formData = getFormData();
     $.ajax({
-      url: '/api/customer/create',
+      url: '/api/customer/createpage',
       type: 'POST',
       data: JSON.stringify(formData),
       contentType: 'application/json',
@@ -47,7 +47,7 @@ $(document).ready(function() {
   $(document).on("click", "#btnEdit", function () {
     var id = $(this).data("id");
     $.ajax({
-        url: `/api/customer/edit/${id}`,
+        url: `/api/customer/editpage/${id}`,
         method: "GET",
         success: function (result) {
             if (result) {
@@ -78,7 +78,7 @@ $(document).on("click", "#btnUpdate", function () {
   }
   let updatedFormData = getUpdatedFormData();
   $.ajax({
-    url: `/api/customer/edit/${customerId}`,
+    url: `/api/customer/editpage/${customerId}`,
     type: 'PUT',
     data: JSON.stringify(updatedFormData),
     contentType: 'application/json',
@@ -129,7 +129,7 @@ $(document).on("click", ".btnDelete", function () {
     }).then((result) => {
       if (result.isConfirmed) {
         $.ajax({
-          url: `/api/customer/delete/${id}`,
+          url: `/api/customer/deletepage/${id}`,
           type: "DELETE",
           success: function (response) {
             Swal.fire({

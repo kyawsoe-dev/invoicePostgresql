@@ -13,7 +13,7 @@ $(document).ready(function() {
 $(document).on("click", "#btnView", function () {
     var id = $(this).data("id");
     $.ajax({
-        url: `/api/invoice/edit/${id}`,
+        url: `/api/invoice/editpage/${id}`,
         method: "GET",
         success: function (result) {
             if (result) {
@@ -144,7 +144,7 @@ $(document).on("click", ".btnDelete", function () {
     }).then((result) => {
       if (result.isConfirmed) {
         $.ajax({
-          url: `/api/invoice/delete/${id}`,
+          url: `/api/invoice/deletepage/${id}`,
           type: "DELETE",
           success: function (response) {
             Swal.fire({
@@ -182,7 +182,7 @@ $(document).on("click", ".btnDelete", function () {
     $('#invoice-list-container').hide();
     var id = $(this).data("id");
     $.ajax({
-        url: `/api/invoice/edit/${id}`,
+        url: `/api/invoice/editpage/${id}`,
         method: "GET",
         success: function (result) {
             if (result) {
@@ -269,7 +269,7 @@ $(document).on("click", "#btnUpdate", function () {
   }
   let updatedFormData = getUpdatedFormData();
   $.ajax({
-    url: `/api/invoice/edit/${invoiceId}`,
+    url: `/api/invoice/editpage/${invoiceId}`,
     type: 'PUT',
     data: JSON.stringify(updatedFormData),
     contentType: 'application/json',
@@ -356,7 +356,7 @@ $(document).ready(function() {
 $(document).on("click", "#pdfDownload", function () {
   var id = $('#modal_invoice_id').val();
   $.ajax({
-      url: `/api/invoice/downloadpdfbyid/${id}`,
+      url: `/api/invoice/downloadpdfbyidpage/${id}`,
       method: "GET",
       success: function (response) {
         Swal.fire({
