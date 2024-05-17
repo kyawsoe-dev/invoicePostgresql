@@ -31,7 +31,7 @@ class AuthModel {
 
   static async getProfile(id) {
     try {
-      const query = 'SELECT customer_name, customer_email, customer_phone, customer_address FROM tbl_customer WHERE id = $1';
+      const query = 'SELECT * FROM tbl_customer WHERE id = $1';
       const { rows } = await sql.query(query, [id]);
 
       if (rows.length === 0) {
@@ -42,6 +42,7 @@ class AuthModel {
 
       return user;
     } catch (error) {
+      console.log(error, "ERROR");
       throw new Error("Authentication Failed");
     }
   }

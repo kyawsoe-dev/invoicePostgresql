@@ -93,9 +93,8 @@ exports.getProfilePage = async (req, res) => {
 
 exports.getProfileAPI = async (req, res) => {
   try {
-    console.log(req.headers, "Req Headers Profile");
 
-    const id = req.headers.userId;
+    const id = req.headers.userid;
 
     if (!id) {
       return res.status(401).json({ message: "User ID Not Found" });

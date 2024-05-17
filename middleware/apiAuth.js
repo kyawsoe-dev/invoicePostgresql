@@ -40,7 +40,6 @@ require('dotenv').config();
 
 const apiVerifyToken = async (req, res, next) => {
     const token = req.headers.authorization;
-    console.log(token);
     if (token) {
        next();
     }else {
