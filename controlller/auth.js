@@ -55,11 +55,6 @@ exports.LogoutPage = async (req, res) => {
 
 exports.Logout = async (req, res) => {
   try {
-    res.cookie('token', '', {
-      httpOnly: true,
-      expires: new Date(0)
-    });
-
     res.status(200).json({ message: "Successfully Logout"});
   } catch (error) {
     console.error("Logout error:", error.message);
