@@ -83,39 +83,60 @@ exports.getInvoiceListPage = async (req, res) => {
 };
 
 // GET Invoice List
+// exports.getInvoice = async (req, res) => {
+//   const page = +req.query.page || 1;
+//   const search = req.query.search || '';
+//   const columnsMap = ["invoice_no", "customer_name", "customer_phone", "customer_email", "customer_address", "stock_code"];
+
+//   const filter = columnsMap.reduce((acc, col) => {
+//     acc[col] = search || '';
+//     return acc;
+//   }, {});
+
+//   try {
+//     const { invoiceList, totalItems } = await invoiceModel.getInvoices(
+//       page,
+//       ITEMS_PER_PAGE,
+//       filter
+//     ); 
+//     console.log(totalItems);
+//     const startIndex = (page - 1) * ITEMS_PER_PAGE + 1;
+//     for (let i = 0; i < invoiceList.length; i++) {
+//       invoiceList[i].custom_id = startIndex + i;
+//     }
+//     res.status(200).json({ 
+//       message: "Invoice List", 
+//       data: invoiceList,
+//       query: req.query,
+//       currentPage: page,
+//       hasNextPage: ITEMS_PER_PAGE * page < totalItems,
+//       hasPreviousPage: page > 1,
+//       nextPage: page + 1,
+//       totalItems: totalItems,
+//       previousPage: page - 1,
+//       perPage: ITEMS_PER_PAGE,
+//       lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE)
+//     });
+//   } catch (error) {
+//     console.log(error);
+//     res.status(500).json({ message: "Internal Server Error" });
+//   }
+// };
+
+
 exports.getInvoice = async (req, res) => {
-  const page = +req.query.page || 1;
-  const search = req.query.search || '';
-  const columnsMap = ["invoice_no", "customer_name", "customer_phone", "customer_email", "customer_address", "stock_code"];
-
-  const filter = columnsMap.reduce((acc, col) => {
-    acc[col] = search || '';
-    return acc;
-  }, {});
-
   try {
-    const { invoiceList, totalItems } = await invoiceModel.getInvoices(
-      page,
-      ITEMS_PER_PAGE,
-      filter
-    ); 
-    console.log(totalItems);
-    const startIndex = (page - 1) * ITEMS_PER_PAGE + 1;
-    for (let i = 0; i < invoiceList.length; i++) {
-      invoiceList[i].custom_id = startIndex + i;
-    }
+    const invoiceList  = await invoiceModel.getInvoiceList();
+    const modifiedList = invoiceList.map((invoice, index) => ({
+      ...invoice,
+      custom_id: index + 1
+    }));
+    
+    const totalItems = modifiedList.length;
     res.status(200).json({ 
       message: "Invoice List", 
-      data: invoiceList,
-      query: req.query,
-      currentPage: page,
-      hasNextPage: ITEMS_PER_PAGE * page < totalItems,
-      hasPreviousPage: page > 1,
-      nextPage: page + 1,
       totalItems: totalItems,
-      previousPage: page - 1,
-      perPage: ITEMS_PER_PAGE,
-      lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE)
+      data: modifiedList
     });
   } catch (error) {
     console.log(error);
