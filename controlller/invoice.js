@@ -1,7 +1,7 @@
 const invoiceModel = require("../model/invoice");
 require('dotenv').config();
 const jwt = require('jsonwebtoken');
-const ITEMS_PER_PAGE = 10;
+var ITEMS_PER_PAGE = 10;
 const path = require('path');
 
 // GET Invoice Page
@@ -83,67 +83,49 @@ exports.getInvoiceListPage = async (req, res) => {
 };
 
 // GET Invoice List
-// exports.getInvoice = async (req, res) => {
-//   const page = +req.query.page || 1;
-//   const search = req.query.search || '';
-//   const columnsMap = ["invoice_no", "customer_name", "customer_phone", "customer_email", "customer_address", "stock_code"];
-
-//   const filter = columnsMap.reduce((acc, col) => {
-//     acc[col] = search || '';
-//     return acc;
-//   }, {});
-
-//   try {
-//     const { invoiceList, totalItems } = await invoiceModel.getInvoices(
-//       page,
-//       ITEMS_PER_PAGE,
-//       filter
-//     ); 
-//     console.log(totalItems);
-//     const startIndex = (page - 1) * ITEMS_PER_PAGE + 1;
-//     for (let i = 0; i < invoiceList.length; i++) {
-//       invoiceList[i].custom_id = startIndex + i;
-//     }
-//     res.status(200).json({ 
-//       message: "Invoice List", 
-//       data: invoiceList,
-//       query: req.query,
-//       currentPage: page,
-//       hasNextPage: ITEMS_PER_PAGE * page < totalItems,
-//       hasPreviousPage: page > 1,
-//       nextPage: page + 1,
-//       totalItems: totalItems,
-//       previousPage: page - 1,
-//       perPage: ITEMS_PER_PAGE,
-//       lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE)
-//     });
-//   } catch (error) {
-//     console.log(error);
-//     res.status(500).json({ message: "Internal Server Error" });
-//   }
-// };
-
-
 exports.getInvoice = async (req, res) => {
+  const page = +req.query.page || 1;
+  const search = req.query.search || '';
+  const filter_count = req.query.filter_count;
+  ITEMS_PER_PAGE = filter_count || ITEMS_PER_PAGE;
+
+  console.log(ITEMS_PER_PAGE, "PAGE")
+
+  const columnsMap = ["invoice_no", "customer_name", "customer_phone", "customer_email", "customer_address", "stock_code"];
+
+  const filter = columnsMap.reduce((acc, col) => {
+    acc[col] = search || '';
+    return acc;
+  }, {});
+
   try {
-    const invoiceList  = await invoiceModel.getInvoiceList();
-    const modifiedList = invoiceList.map((invoice, index) => ({
-      ...invoice,
-      custom_id: index + 1
-    }));
-    
-    const totalItems = modifiedList.length;
+    const { invoiceList, totalItems } = await invoiceModel.getInvoices(
+      page,
+      ITEMS_PER_PAGE,
+      filter
+    ); 
+    const startIndex = (page - 1) * ITEMS_PER_PAGE + 1;
+    for (let i = 0; i < invoiceList.length; i++) {
+      invoiceList[i].custom_id = startIndex + i;
+    }
     res.status(200).json({ 
       message: "Invoice List", 
+      data: invoiceList,
+      query: req.query,
+      currentPage: page,
+      hasNextPage: ITEMS_PER_PAGE * page < totalItems,
+      hasPreviousPage: page > 1,
+      nextPage: page + 1,
       totalItems: totalItems,
-      data: modifiedList
+      previousPage: page - 1,
+      perPage: ITEMS_PER_PAGE,
+      lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE)
     });
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
-
 
 // CREATE invoice
 exports.createInvoice = async (req, res) => {

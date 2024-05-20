@@ -52,80 +52,80 @@ class Invoice {
   }
 
   // GET invoice list
-  // static async getInvoices(page, ITEMS_PER_PAGE, filter) {
-  //   const offset = (page - 1) * ITEMS_PER_PAGE;
-  //   let queryParams = [];
-  //   let whereClause = '';
-  //   if (filter) {
-  //     whereClause = 'WHERE ';
-  //     const conditions = Object.keys(filter).map((col) => {
-  //       queryParams.push(`%${filter[col]}%`);
-  //       return `${col} ILIKE $${queryParams.length}`;
-  //     });
-  //     whereClause += conditions.join(' OR ');
-  //   }
+  static async getInvoices(page, ITEMS_PER_PAGE, filter) {
+    const offset = (page - 1) * ITEMS_PER_PAGE;
+    let queryParams = [];
+    let whereClause = '';
+    if (filter) {
+      whereClause = 'WHERE ';
+      const conditions = Object.keys(filter).map((col) => {
+        queryParams.push(`%${filter[col]}%`);
+        return `${col} ILIKE $${queryParams.length}`;
+      });
+      whereClause += conditions.join(' OR ');
+    }
   
-  //   const countQuery = `
-  //     SELECT COUNT(DISTINCT tbliv.id) AS total_count
-  //     FROM tbl_invoice tbliv
-  //     INNER JOIN tbl_customer tblcu ON tbliv.customer_id = tblcu.id
-  //     INNER JOIN tbl_invoice_stock tblis ON tbliv.id = tblis.invoice_id
-  //     INNER JOIN tbl_stock tbls ON tblis.stock_id = tbls.id
-  //     ${whereClause}
-  //   `;
+    const countQuery = `
+      SELECT COUNT(DISTINCT tbliv.id) AS total_count
+      FROM tbl_invoice tbliv
+      INNER JOIN tbl_customer tblcu ON tbliv.customer_id = tblcu.id
+      INNER JOIN tbl_invoice_stock tblis ON tbliv.id = tblis.invoice_id
+      INNER JOIN tbl_stock tbls ON tblis.stock_id = tbls.id
+      ${whereClause}
+    `;
   
-  //   const invoicesQuery = `
-  //     SELECT 
-  //       tbliv.id AS invoice_id, 
-  //       tbliv.invoice_no,
-  //       tbliv.total_amount, 
-  //       TO_CHAR(tbliv.invoice_date, 'DD-MM-YYYY HH:MI AM') AS invoice_date,
-  //       tblcu.id AS customer_id,
-  //       tblcu.customer_name, 
-  //       tblcu.customer_phone,
-  //       tblcu.customer_email, 
-  //       tblcu.customer_address,
-  //       JSON_AGG(
-  //         JSON_BUILD_OBJECT(
-  //           'stock_id', tbls.id,
-  //           'stock_code', tbls.stock_code,
-  //           'stock_description', tbls.stock_description,
-  //           'stock_price', tbls.stock_price,
-  //           'stock_quantity', tbls.stock_quantity
-  //         )
-  //       ) AS stock_items
-  //     FROM tbl_invoice tbliv
-  //     INNER JOIN tbl_customer tblcu ON tbliv.customer_id = tblcu.id
-  //     INNER JOIN tbl_invoice_stock tblis ON tbliv.id = tblis.invoice_id
-  //     INNER JOIN tbl_stock tbls ON tblis.stock_id = tbls.id
-  //     ${whereClause}
-  //     GROUP BY 
-  //       tbliv.id,
-  //       tbliv.invoice_no,
-  //       tbliv.total_amount,
-  //       tbliv.invoice_date,
-  //       tblcu.id,
-  //       tblcu.customer_name,
-  //       tblcu.customer_phone,
-  //       tblcu.customer_email,
-  //       tblcu.customer_address
-  //     ORDER BY tbliv.invoice_date DESC
-  //     LIMIT $${queryParams.length + 1}
-  //     OFFSET $${queryParams.length + 2};
-  //   `;
+    const invoicesQuery = `
+      SELECT 
+        tbliv.id AS invoice_id, 
+        tbliv.invoice_no,
+        tbliv.total_amount, 
+        TO_CHAR(tbliv.invoice_date, 'DD-MM-YYYY HH:MI AM') AS invoice_date,
+        tblcu.id AS customer_id,
+        tblcu.customer_name, 
+        tblcu.customer_phone,
+        tblcu.customer_email, 
+        tblcu.customer_address,
+        JSON_AGG(
+          JSON_BUILD_OBJECT(
+            'stock_id', tbls.id,
+            'stock_code', tbls.stock_code,
+            'stock_description', tbls.stock_description,
+            'stock_price', tbls.stock_price,
+            'stock_quantity', tbls.stock_quantity
+          )
+        ) AS stock_items
+      FROM tbl_invoice tbliv
+      INNER JOIN tbl_customer tblcu ON tbliv.customer_id = tblcu.id
+      INNER JOIN tbl_invoice_stock tblis ON tbliv.id = tblis.invoice_id
+      INNER JOIN tbl_stock tbls ON tblis.stock_id = tbls.id
+      ${whereClause}
+      GROUP BY 
+        tbliv.id,
+        tbliv.invoice_no,
+        tbliv.total_amount,
+        tbliv.invoice_date,
+        tblcu.id,
+        tblcu.customer_name,
+        tblcu.customer_phone,
+        tblcu.customer_email,
+        tblcu.customer_address
+      ORDER BY tbliv.invoice_date DESC
+      LIMIT $${queryParams.length + 1}
+      OFFSET $${queryParams.length + 2};
+    `;
   
-  //   try {
-  //     const countResult = await sql.query(countQuery, queryParams);
-  //     const totalItems = countResult.rows[0].total_count;
-  //     queryParams.push(ITEMS_PER_PAGE, offset);
-  //     const invoicesResult = await sql.query(invoicesQuery, queryParams);
-  //     const invoiceList = invoicesResult.rows;
+    try {
+      const countResult = await sql.query(countQuery, queryParams);
+      const totalItems = countResult.rows[0].total_count;
+      queryParams.push(ITEMS_PER_PAGE, offset);
+      const invoicesResult = await sql.query(invoicesQuery, queryParams);
+      const invoiceList = invoicesResult.rows;
   
-  //     return { invoiceList, totalItems };
-  //   } catch (error) {
-  //     throw new Error(`Error fetching invoices: ${error.message}`);
-  //   }
-  // }
+      return { invoiceList, totalItems };
+    } catch (error) {
+      throw new Error(`Error fetching invoices: ${error.message}`);
+    }
+  }
   
 
 // CREATE Invoice
