@@ -13,6 +13,49 @@ class Customer {
       throw error;
     }
   }
+
+
+  // customer list
+  static async getCustomerList(page, ITEMS_PER_PAGE, filter) {
+    const offset = (page - 1) * ITEMS_PER_PAGE;
+    let queryParams = [];
+    let whereClause = '';
+    if (filter) {
+      whereClause = 'WHERE ';
+      const conditions = Object.keys(filter).map((col) => {
+        queryParams.push(`%${filter[col]}%`);
+        return `${col} ILIKE $${queryParams.length}`;
+      });
+      whereClause += conditions.join(' OR ');
+    }
+  
+    const countQuery = `
+      SELECT COUNT(DISTINCT id) AS total_count
+      FROM tbl_customer
+      ${whereClause}
+    `;
+  
+    const customerQuery = `
+      SELECT * FROM tbl_customer
+      ${whereClause}
+      ORDER BY id DESC
+      LIMIT $${queryParams.length + 1}
+      OFFSET $${queryParams.length + 2};
+    `;
+  
+    try {
+      const countResult = await sql.query(countQuery, queryParams);
+      const totalItems = countResult.rows[0].total_count;
+      queryParams.push(ITEMS_PER_PAGE, offset);
+      const customerResult = await sql.query(customerQuery, queryParams);
+      const customerList = customerResult.rows;
+  
+      return { customerList, totalItems };
+      
+    } catch (error) {
+      throw new Error(`Error fetching invoices: ${error.message}`);
+    }
+  }
   
   // customer create
   static async createCustomer(data) {

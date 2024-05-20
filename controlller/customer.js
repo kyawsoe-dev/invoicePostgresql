@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
+var ITEMS_PER_PAGE = 10;
 const customerModel = require('../model/customer');
 
 exports.getCutomerPage = async (req, res) => {
@@ -19,9 +20,43 @@ exports.getCutomerPage = async (req, res) => {
 
 
 exports.getCustomer = async (req, res) => {
+  const page = +req.query.page || 1;
+  const search = req.query.search || '';
+  const filter_count = req.query.sort;
+  ITEMS_PER_PAGE = filter_count || ITEMS_PER_PAGE;
+
+  console.log(ITEMS_PER_PAGE, "PAGE")
+
+  const columnsMap = ["customer_name", "customer_phone", "customer_email", "customer_address"];
+
+  const filter = columnsMap.reduce((acc, col) => {
+    acc[col] = search || '';
+    return acc;
+  }, {});
+
   try {
-    const customer = await customerModel.getCustomers();
-    res.status(200).json({"message" : 'Customer List', data: customer});
+    const { customerList, totalItems } = await customerModel.getCustomerList(
+      page,
+      ITEMS_PER_PAGE,
+      filter
+    ); 
+    const startIndex = (page - 1) * ITEMS_PER_PAGE + 1;
+    for (let i = 0; i < customerList.length; i++) {
+      customerList[i].custom_id = startIndex + i;
+    }
+    res.status(200).json({ 
+      message: "Customer List", 
+      data: customerList,
+      totalItems: totalItems,
+      query: req.query,
+      currentPage: page,
+      hasNextPage: ITEMS_PER_PAGE * page < totalItems,
+      hasPreviousPage: page > 1,
+      nextPage: page + 1,
+      previousPage: page - 1,
+      perPage: ITEMS_PER_PAGE,
+      lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE)
+    });
   } catch (error) {
     res.status(500).json({ message: 'Internal Server Error' });
   }
