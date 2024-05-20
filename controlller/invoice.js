@@ -86,7 +86,7 @@ exports.getInvoiceListPage = async (req, res) => {
 exports.getInvoice = async (req, res) => {
   const page = +req.query.page || 1;
   const search = req.query.search || '';
-  const filter_count = req.query.filter_count;
+  const filter_count = req.query.sort;
   ITEMS_PER_PAGE = filter_count || ITEMS_PER_PAGE;
 
   console.log(ITEMS_PER_PAGE, "PAGE")
