@@ -19,47 +19,6 @@ exports.getInvoicePage = async(req, res) => {
   })
 }
 
-// Invoice List Page
-// exports.getInvoiceListPage = async (req, res) => {
-//   const page = +req.query.page || 1;
-//   const search = req.query.search || '';
-//   const columnsMap = ["invoice_no", "customer_name", "customer_phone", "customer_email", "customer_address", "stock_code"];
-
-//   const filter = columnsMap.reduce((acc, col) => {
-//     acc[col] = search || '';
-//     return acc;
-//   }, {});
-
-//   try {
-//     const { invoiceList, totalItems } = await invoiceModel.getInvoices(
-//       page,
-//       ITEMS_PER_PAGE,
-//       filter
-//     );
-//     const startIndex = (page - 1) * ITEMS_PER_PAGE + 1;
-//     // const endIndex = Math.min(startIndex + ITEMS_PER_PAGE - 1, totalItems);
-//     for (let i = 0; i < invoiceList.length; i++) {
-//       invoiceList[i].custom_id = startIndex + i;
-//     }
-//     res.render('invoice_list', {
-//       title: "Invoice List Page",
-//       data: invoiceList,
-//       query: req.query,
-//       currentPage: page,
-//       hasNextPage: ITEMS_PER_PAGE * page < totalItems,
-//       hasPreviousPage: page > 1,
-//       nextPage: page + 1,
-//       previousPage: page - 1,
-//       perPage: ITEMS_PER_PAGE,
-//       lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE)
-//     });
-//   } catch (error) {
-//     console.log(error);
-//     res.status(500).json({ message: "Internal Server Error" });
-//   }
-// };
-
-
 exports.getInvoiceListPage = async (req, res) => {
   try {
     const invoiceList  = await invoiceModel.getInvoiceList();
