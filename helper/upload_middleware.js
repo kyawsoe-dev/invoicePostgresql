@@ -8,10 +8,10 @@ if (!fs.existsSync(uploadDirectory)) {
 
 const csvUpload = multer.diskStorage({
   destination: (req, file, cb) => {
-    console.log(file)
     cb(null, uploadDirectory);
   },
   filename: (req, file, cb) => {
+    console.log(file, "FILE");
     const fileName = file.originalname;
     cb(null, `${new Date().toISOString().slice(0, 10)}_${new Date().getTime()}_${fileName}`);
   }

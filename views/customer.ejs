@@ -12,6 +12,15 @@
     <script src="https://cdn.datatables.net/2.0.7/js/dataTables.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="/javascripts/customer.js"></script>
+    <style>
+      #profile {
+        transition: transform 0.3s ease;
+      }
+    
+      #profile:hover {
+        transform: scale(3.5);
+      }
+    </style>
 </head>
 <body>
     <%- include("./components/navbar.ejs"); %>
@@ -57,7 +66,7 @@
                     <td>0<%= user.customer_phone %></td>
                     <td><%= user.customer_email %></td>
                     <td><%= user.customer_address %></td>
-                    <td><img src="<%= user.profile_image ? user.profile_image : '/uploads/default.png' %>" width="40px" height="40px" alt="profile"></td>
+                    <td><img src="<%= user.profile_image ? user.profile_image : '/uploads/default.png' %>" width="40px" height="40px" alt="profile" id="profile"></td>
                     <td>
                     <button type="button" class="btn btn-icon btn-md btnEdit" id="btnEdit" data-id="<%= user.id %>" data-toggle="modal" data-target="#editCustomerModal" title="Edit User">
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
@@ -89,7 +98,7 @@
                 <p data-dismiss="modal" aria-label="Close"><span class="text-dark" aria-hidden="true">&times;</span></p>
             </div>
             <div class="modal-body" id="modal-body">
-              <form id="addCustomerForm">
+              <form id="addCustomerForm" name="addCustomerForm">
                 <div class="row">
                   <div class="col">
                     <div class="form-group">
@@ -163,8 +172,14 @@
                       <label for="edit_customer_address">Edit Address</label>
                       <textarea id="edit_customer_address" class="form-control edit_customer_address" name="edit_customer_address" rows="2" cols="10" placeholder="Enter your Address here ..."></textarea>
                     </div>
+
+                    <div class="form-group">
+                      <label for="file">File</label>
+                      <input type="file" name="file" id="file" accept=".png, .jpg, .jpeg">
+                    </div>
+
                     <div class="form-group text-center">
-                      <input type="button" class="btn btn-secondary w-50" id="btnUpdate" name="btnUpdate" value="UPDATE">
+                      <input type="submit" class="btn btn-secondary w-50" id="btnUpdate" name="btnUpdate" value="UPDATE">
                     </div>
                   </div>
                 </div>

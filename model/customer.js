@@ -103,6 +103,7 @@ static async getCustomerById(id) {
 
 // POST Edit Invoice
 static async postUpdateById(id, data) {
+  console.log(data, "Update Data");
   try {
     let customerUpdateQuery = `UPDATE tbl_customer SET customer_name = $1, customer_phone = $2, customer_email = $3, customer_address = $4`;
     const customerUpdateParams = [
@@ -112,14 +113,24 @@ static async postUpdateById(id, data) {
       data.customer_address,
     ];
 
+    let paramIndex = 5;
+
     if (data.customer_password) {
       const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(data.customer_password, salt); 
-      customerUpdateQuery += ', customer_password = $5';
+      const hashedPassword = await bcrypt.hash(data.customer_password, salt);
+      customerUpdateQuery += `, customer_password = $${paramIndex}`;
       customerUpdateParams.push(hashedPassword);
+      paramIndex++;
     }
-    customerUpdateQuery += ' WHERE id = $' + (customerUpdateParams.length + 1) + ' RETURNING id';
 
+    if (data.profile_image) {
+      customerUpdateQuery += `, profile_image = $${paramIndex}`;
+      const modify_profile = "/uploads/" + data.profile_image;
+      customerUpdateParams.push(modify_profile);
+      paramIndex++;
+    }
+
+    customerUpdateQuery += ` WHERE id = $${paramIndex} RETURNING id`;
     customerUpdateParams.push(id);
 
     const customerUpdateResult = await sql.query(
@@ -128,11 +139,12 @@ static async postUpdateById(id, data) {
     );
 
     return customerUpdateResult.rows[0].id;
-
   } catch (error) {
+    console.log(error);
     throw new Error(`Error updating customer: ${error.message}`);
   }
 }
+
 
 // DELETE Customer
 static async deleteCustomerById(id) {

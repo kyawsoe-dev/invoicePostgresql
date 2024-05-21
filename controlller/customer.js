@@ -104,11 +104,20 @@ exports.getCustomerById = async (req, res) => {
 };
 
 // PUT update by id
-exports.postUpdateById = async (req, res) => {
+exports.postUpdateById = [middleware.single('file'), async (req, res) => {
   const id = req.params.id;
-  const data = req.body;
-  console.log(id, "ID");
-  console.log(data, "Update Data");
+  const data = {
+    customer_name: req.body.edit_customer_name,
+    customer_email: req.body.edit_customer_email,
+    customer_phone: req.body.edit_customer_phone,
+    customer_password: req.body.edit_customer_password,
+    customer_address: req.body.edit_customer_address,
+  };
+
+  if (req.file) {
+    data.profile_image = req.file.filename;
+  }
+
   try {
     const result = await customerModel.postUpdateById(id, data);
 
@@ -119,7 +128,7 @@ exports.postUpdateById = async (req, res) => {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
   }
-};
+}];
 
 
 // DELETE customer
