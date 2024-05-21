@@ -21,8 +21,8 @@ class AuthModel {
         return null;
       }
 
-      const token = jwt.sign({ userId: user.id, name: user.customer_name }, process.env.JWT_SECRET, { expiresIn: '1d' });
-      return { token, userId: user.id, name: user.customer_name };
+      const token = jwt.sign({ userId: user.id, name: user.customer_name, profile_image: user.profile_image }, process.env.JWT_SECRET, { expiresIn: '1d' });
+      return { token, userId: user.id, name: user.customer_name, profile_image: user.profile_image };
     } catch (error) {
       console.log(error, "LOGIN ERROR")
       throw new Error("Authentication Failed");

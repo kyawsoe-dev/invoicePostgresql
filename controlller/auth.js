@@ -23,13 +23,13 @@ exports.postLogin = async (req, res) => {
     if (!result) {
       return res.status(401).json({ message: "Invalid email or Password" });
     }
-    const { token, userId, name } = result;
+    const { token, userId, name, profile_image } = result;
 
     res.cookie('token', token, {
       maxAge: 24 * 60 * 60 * 1000,
     });
 
-    res.status(200).json({ message: "Successfully LoggedIn", data: { token, userId, name } });
+    res.status(200).json({ message: "Successfully LoggedIn", data: { token, userId, name, profile_image } });
   } catch (error) {
     console.error("Login error:", error.message);
     res.status(500).json({ message: "Internal Server Error" });
@@ -69,6 +69,7 @@ exports.getProfilePage = async (req, res) => {
     const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
     const name = decodedToken.name;
     const id = decodedToken.userId;
+    const profile_image = decodedToken.profile_image;
     if (!token) {
       return res.status(401).json({ message: "Unauthorized: No token provided" });
     }
@@ -78,7 +79,7 @@ exports.getProfilePage = async (req, res) => {
       return res.status(404).json({ message: "User not found or token expired" });
     }
 
-    res.render('profile',{ title: 'User Profile', data: user, name });
+    res.render('profile',{ title: 'User Profile', data: user, name, profile_image });
 
   } catch (error) {
     console.error("Error fetching profile:", error.message);

@@ -7,12 +7,13 @@ exports.getCutomerPage = async (req, res) => {
   const token = req.cookies.token;
   const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
   const name = decodedToken.name;
+  const profile_image = decodedToken.profile_image;
   try {
     const customer = await customerModel.getCustomers();
     for (let i = 1; i <= customer.length; i++) {
       customer[i - 1].custom_id = i;
     }
-    res.render('customer',{"title" : 'Customer List', data: customer, name});
+    res.render('customer',{"title" : 'Customer List', data: customer, name, profile_image});
   } catch (error) {
     res.status(500).json({ message: 'Internal Server Error' });
   }
@@ -62,8 +63,14 @@ exports.getCustomer = async (req, res) => {
   }
 };
 
-exports.createCustomer = async (req, res) => {
+
+const middleware = require('../helper/upload_middleware').csvUpload;
+
+exports.createCustomer = [middleware.single('file'), async (req, res) => {
   const data = req.body;
+  if (req.file) {
+    data.profile_image = req.file.filename;
+  }
   try {
     
     await customerModel.createCustomer(data);
@@ -75,7 +82,7 @@ exports.createCustomer = async (req, res) => {
     console.log(error);
     res.status(500).json({ message: "Internal Server Error" });
   }
-};
+}];
 
 // GET update by id
 exports.getCustomerById = async (req, res) => {
@@ -99,6 +106,7 @@ exports.getCustomerById = async (req, res) => {
 exports.postUpdateById = async (req, res) => {
   const id = req.params.id;
   const data = req.body;
+  console.log(id, "ID");
   console.log(data, "Update Data");
   try {
     const result = await customerModel.postUpdateById(id, data);

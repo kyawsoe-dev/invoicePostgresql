@@ -62,8 +62,8 @@ class Customer {
     try {
       const customerInsertQuery = `
           INSERT INTO tbl_customer 
-          (customer_name, customer_phone, customer_email, customer_address, customer_password) 
-          VALUES ($1, $2, $3, $4, $5)
+          (customer_name, customer_phone, customer_email, customer_address, customer_password, profile_image) 
+          VALUES ($1, $2, $3, $4, $5, $6)
           RETURNING id
       `;
 
@@ -74,7 +74,8 @@ class Customer {
           data.customer_phone,
           data.customer_email,
           data.customer_address,
-          hashedPassword
+          hashedPassword,
+          data.profile_image ? "/uploads/" + data.profile_image : "/uploads/default.png"
       ];
 
       const { rows } = await sql.query(customerInsertQuery, customerInsertParams);

@@ -12,8 +12,8 @@ const csvUpload = multer.diskStorage({
     cb(null, uploadDirectory);
   },
   filename: (req, file, cb) => {
-    const fileExtension = file.originalname.split('.').pop();
-    cb(null, `${new Date().toISOString().slice(0, 10)}_${new Date().getTime()}_invoicelist.${fileExtension}`);
+    const fileName = file.originalname;
+    cb(null, `${new Date().toISOString().slice(0, 10)}_${new Date().getTime()}_${fileName}`);
   }
 });
 
