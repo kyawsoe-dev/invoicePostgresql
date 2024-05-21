@@ -18,8 +18,8 @@ $(document).ready(function() {
               }).then((result) => {
                   if (result.dismiss === Swal.DismissReason.timer) {
                       console.log('User Created successfully:', response);
-                      window.location.href = 'http://localhost:3001/api/customer/listpage';
-                      // window.location.href = 'https://crudinvoicepostgresql.onrender.com/api/customer/listpage';
+                      // window.location.href = 'http://localhost:3001/api/customer/listpage';
+                      window.location.href = 'https://crudinvoicepostgresql.onrender.com/api/customer/listpage';
                   }
               });
           },
