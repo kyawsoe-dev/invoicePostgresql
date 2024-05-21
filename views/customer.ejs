@@ -44,6 +44,7 @@
                 <th>Phone</th>
                 <th>Email</th>
                 <th>Address</th>
+                <th>Profile</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -56,6 +57,7 @@
                     <td>0<%= user.customer_phone %></td>
                     <td><%= user.customer_email %></td>
                     <td><%= user.customer_address %></td>
+                    <td><img src="<%= user.profile_image ? user.profile_image : '/uploads/default.png' %>" width="40px" height="40px" alt="profile"></td>
                     <td>
                     <button type="button" class="btn btn-icon btn-md btnEdit" id="btnEdit" data-id="<%= user.id %>" data-toggle="modal" data-target="#editCustomerModal" title="Edit User">
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
@@ -110,6 +112,11 @@
                     <div class="form-group">
                       <label for="customer_address">Address</label>
                       <textarea id="customer_address" class="form-control customer_address" name="customer_address" rows="2" cols="10" placeholder="Enter your Address here ..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="file">Profile</label>
+                      <input type="file" name="file" id="file" accept=".png, .jpg, .jpeg">
                     </div>
                     <div class="form-group text-center">
                       <input type="submit" class="btn btn-secondary w-50" id="btnSubmit" name="btnSubmit" value="SAVE">

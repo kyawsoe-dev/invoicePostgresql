@@ -31,11 +31,13 @@ exports.getInvoiceListPage = async (req, res) => {
   
     const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
     const name = decodedToken.name;
+    const profile_image = decodedToken.profile_image;
     res.render('invoice_list', {
       title: "Invoice List Page",
       data: invoiceList,
       query: req.query,
-      name: name
+      name: name,
+      profile_image
     });
   } catch (error) {
     console.log(error);

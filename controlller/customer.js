@@ -71,6 +71,7 @@ exports.createCustomer = [middleware.single('file'), async (req, res) => {
   if (req.file) {
     data.profile_image = req.file.filename;
   }
+  console.log(data, "Controller Data");
   try {
     
     await customerModel.createCustomer(data);

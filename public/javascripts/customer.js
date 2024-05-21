@@ -16,8 +16,8 @@ $(document).ready(function() {
         }).then((result) => {
           if (result.dismiss === Swal.DismissReason.timer) {
             console.log('User Created successfully:', response);
-            // window.location.href = 'http://localhost:3001/api/customer/listpage';
-            window.location.href = 'https://crudinvoicepostgresql.onrender.com/api/customer/listpage';
+            window.location.href = 'http://localhost:3001/api/customer/listpage';
+            // window.location.href = 'https://crudinvoicepostgresql.onrender.com/api/customer/listpage';
           }
         });
       },
@@ -39,6 +39,7 @@ $(document).ready(function() {
       customer_email: $('input[name="customer_email"]').val(),
       customer_address: $('textarea[name="customer_address"]').val(),
       customer_password: $('input[name="customer_password"]').val(),
+      profile_image: $('input[name="file"]').val(),
     };
     return formData;
   }
