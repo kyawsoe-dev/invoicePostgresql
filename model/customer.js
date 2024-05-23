@@ -27,7 +27,9 @@ class Customer {
         return `${col} ILIKE $${queryParams.length}`;
       });
       whereClause += conditions.join(' OR ');
+      whereClause += ' OR ';
     }
+    whereClause += '1=1';
   
     const countQuery = `
       SELECT COUNT(DISTINCT id) AS total_count
@@ -56,6 +58,7 @@ class Customer {
       throw new Error(`Error fetching invoices: ${error.message}`);
     }
   }
+
   
   // customer create
   static async createCustomer(data) {
