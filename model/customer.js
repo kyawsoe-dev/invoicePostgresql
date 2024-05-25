@@ -23,13 +23,14 @@ class Customer {
     if (filter) {
       whereClause = 'WHERE ';
       const conditions = Object.keys(filter).map((col) => {
-        queryParams.push(`%${filter[col]}%`);
-        return `${col} ILIKE $${queryParams.length}`;
-      });
+        if (filter[col]) {
+          queryParams.push(`%${filter[col]}%`);
+          return `${col} ILIKE $${queryParams.length}`;
+        }
+        return null;
+      }).filter(condition => condition !== null);
       whereClause += conditions.join(' OR ');
-      whereClause += ' OR ';
     }
-    whereClause += '1=1';
   
     const countQuery = `
       SELECT COUNT(DISTINCT id) AS total_count
@@ -57,7 +58,8 @@ class Customer {
     } catch (error) {
       throw new Error(`Error fetching invoices: ${error.message}`);
     }
-  }
+}
+
 
   
   // customer create
