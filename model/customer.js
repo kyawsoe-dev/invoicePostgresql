@@ -29,7 +29,11 @@ class Customer {
         }
         return null;
       }).filter(condition => condition !== null);
-      whereClause += conditions.join(' OR ');
+      if (conditions.length > 0) {
+        whereClause += conditions.join(' OR ');
+      } else {
+        whereClause += '1=1';
+      }
     }
   
     const countQuery = `
@@ -56,9 +60,10 @@ class Customer {
       return { customerList, totalItems };
       
     } catch (error) {
-      throw new Error(`Error fetching invoices: ${error.message}`);
+      throw new Error(`Error fetching customers: ${error.message}`);
     }
 }
+
 
 
   
