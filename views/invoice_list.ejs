@@ -1,317 +1,570 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><%= title %></title>
-  <link rel="icon" href="/images/invoice.png" type="image/x-icon"/>
-  <link rel="stylesheet" href="/stylesheets/invoice_list.css">
-  <link rel="stylesheet" href="/stylesheets/bootstrap.min.css"> 
-  <link rel="stylesheet" href="/stylesheets/fontawesome.min.css"> 
-  <link rel="stylesheet" href="/stylesheets/pagination.css">
-  <link rel="stylesheet" href="/stylesheets/sweetalert.css">
-  <link rel="stylesheet" href="https://cdn.datatables.net/2.0.7/css/dataTables.dataTables.css">
-  <script src="/assets/jquery.js"></script>
-  <script src="/javascripts/bootstrap.min.js"></script>
-  <script src="/javascripts/canvas.min.js"></script>
-  <script src="/javascripts/invoice_list.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <script src="https://cdn.datatables.net/2.0.7/js/dataTables.js"></script>
-</head>
-<body>
-<%- include("./components/navbar.ejs"); %>
-<div>
-    <div class="container px-0" id="invoice-list-container">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= title %></title>
+    <link rel="icon" href="/images/invoice.png" type="image/x-icon" />
+    <link rel="stylesheet" href="/stylesheets/invoice_list.css" />
+    <link rel="stylesheet" href="/stylesheets/bootstrap.min.css" />
+    <link rel="stylesheet" href="/stylesheets/fontawesome.min.css" />
+    <link rel="stylesheet" href="/stylesheets/pagination.css" />
+    <link rel="stylesheet" href="/stylesheets/sweetalert.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.datatables.net/2.0.7/css/dataTables.dataTables.css"
+    />
+    <script src="/assets/jquery.js"></script>
+    <script src="/javascripts/bootstrap.min.js"></script>
+    <script src="/javascripts/canvas.min.js"></script>
+    <script src="/javascripts/invoice_list.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.datatables.net/2.0.7/js/dataTables.js"></script>
+  </head>
+
+  <body>
+    <%- include("./components/navbar.ejs"); %>
+    <div>
+      <div class="container px-0" id="invoice-list-container">
         <div class="row">
-            <div class="col-12 col-lg-12">
-              <div class="row">
-                <a class="nav-link text-secondary" href="/" style="font-size: large;">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-house-door" viewBox="0 0 16 16">
-                    <path d="M8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4.5a.5.5 0 0 0 .5-.5v-4h2v4a.5.5 0 0 0 .5.5H14a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293zM2.5 14V7.707l5.5-5.5 5.5 5.5V14H10v-4a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5v4z"/>
-                  </svg>
-                  Home &GreaterGreater;
-                  </a>
-                  <a class="nav-link text-secondary" href="/api/invoice/listpage" style="font-size: large;">Invoice List</a>
-              </div>
-                <div class="header-container">
-                    <!-- <a href="https://crudinvoicepostgresql.onrender.com/api/invoice/listpage">Clear Filter</a> -->
-                    <!-- <a href="http://localhost:3001/api/invoice/listpage" id="clearFilter">Clear Filter</a>
+          <div class="col-12 col-lg-12">
+            <div class="row">
+              <a
+                class="nav-link text-secondary"
+                href="/"
+                style="font-size: large"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  fill="currentColor"
+                  class="bi bi-house-door"
+                  viewBox="0 0 16 16"
+                >
+                  <path
+                    d="M8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4.5a.5.5 0 0 0 .5-.5v-4h2v4a.5.5 0 0 0 .5.5H14a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293zM2.5 14V7.707l5.5-5.5 5.5 5.5V14H10v-4a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5v4z"
+                  />
+                </svg>
+                Home &GreaterGreater;
+              </a>
+              <a
+                class="nav-link text-secondary"
+                href="/api/invoice/listpage"
+                style="font-size: large"
+                >Invoice List</a
+              >
+            </div>
+            <div class="header-container">
+              <!-- <a href="https://crudinvoicepostgresql.onrender.com/api/invoice/listpage">Clear Filter</a> -->
+              <!-- <a href="http://localhost:3001/api/invoice/listpage" id="clearFilter">Clear Filter</a>
                     <form id="searchForm">
                         <input type="search" name="search" id="searchInput" placeholder="Enter Search Input" value="<%= query.search %>">
                     </form> -->
-                </div>
-                <a href="/api/invoice/exportcsvpage" class="btn btn-md btn-secondary mb-1 exportCSV">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-filetype-csv" viewBox="0 0 16 16">
-                    <path fill-rule="evenodd" d="M14 4.5V14a2 2 0 0 1-2 2h-1v-1h1a1 1 0 0 0 1-1V4.5h-2A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v9H2V2a2 2 0 0 1 2-2h5.5zM3.517 14.841a1.13 1.13 0 0 0 .401.823q.195.162.478.252.284.091.665.091.507 0 .859-.158.354-.158.539-.44.187-.284.187-.656 0-.336-.134-.56a1 1 0 0 0-.375-.357 2 2 0 0 0-.566-.21l-.621-.144a1 1 0 0 1-.404-.176.37.37 0 0 1-.144-.299q0-.234.185-.384.188-.152.512-.152.214 0 .37.068a.6.6 0 0 1 .246.181.56.56 0 0 1 .12.258h.75a1.1 1.1 0 0 0-.2-.566 1.2 1.2 0 0 0-.5-.41 1.8 1.8 0 0 0-.78-.152q-.439 0-.776.15-.337.149-.527.421-.19.273-.19.639 0 .302.122.524.124.223.352.367.228.143.539.213l.618.144q.31.073.463.193a.39.39 0 0 1 .152.326.5.5 0 0 1-.085.29.56.56 0 0 1-.255.193q-.167.07-.413.07-.175 0-.32-.04a.8.8 0 0 1-.248-.115.58.58 0 0 1-.255-.384zM.806 13.693q0-.373.102-.633a.87.87 0 0 1 .302-.399.8.8 0 0 1 .475-.137q.225 0 .398.097a.7.7 0 0 1 .272.26.85.85 0 0 1 .12.381h.765v-.072a1.33 1.33 0 0 0-.466-.964 1.4 1.4 0 0 0-.489-.272 1.8 1.8 0 0 0-.606-.097q-.534 0-.911.223-.375.222-.572.632-.195.41-.196.979v.498q0 .568.193.976.197.407.572.626.375.217.914.217.439 0 .785-.164t.55-.454a1.27 1.27 0 0 0 .226-.674v-.076h-.764a.8.8 0 0 1-.118.363.7.7 0 0 1-.272.25.9.9 0 0 1-.401.087.85.85 0 0 1-.478-.132.83.83 0 0 1-.299-.392 1.7 1.7 0 0 1-.102-.627zm8.239 2.238h-.953l-1.338-3.999h.917l.896 3.138h.038l.888-3.138h.879z"/>
-                  </svg>
-                  Export CSV
-                </a>
-                <a href="javascript:void(0)" type="button" class="btn btn-md btn-secondary mb-1 importCSVModal" id="btnCSVImport" data-toggle="modal" data-target="#importCSVModal" title="Import CSV">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-filetype-csv" viewBox="0 0 16 16">
-                  <path fill-rule="evenodd" d="M14 4.5V14a2 2 0 0 1-2 2h-1v-1h1a1 1 0 0 0 1-1V4.5h-2A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v9H2V2a2 2 0 0 1 2-2h5.5zM3.517 14.841a1.13 1.13 0 0 0 .401.823q.195.162.478.252.284.091.665.091.507 0 .859-.158.354-.158.539-.44.187-.284.187-.656 0-.336-.134-.56a1 1 0 0 0-.375-.357 2 2 0 0 0-.566-.21l-.621-.144a1 1 0 0 1-.404-.176.37.37 0 0 1-.144-.299q0-.234.185-.384.188-.152.512-.152.214 0 .37.068a.6.6 0 0 1 .246.181.56.56 0 0 1 .12.258h.75a1.1 1.1 0 0 0-.2-.566 1.2 1.2 0 0 0-.5-.41 1.8 1.8 0 0 0-.78-.152q-.439 0-.776.15-.337.149-.527.421-.19.273-.19.639 0 .302.122.524.124.223.352.367.228.143.539.213l.618.144q.31.073.463.193a.39.39 0 0 1 .152.326.5.5 0 0 1-.085.29.56.56 0 0 1-.255.193q-.167.07-.413.07-.175 0-.32-.04a.8.8 0 0 1-.248-.115.58.58 0 0 1-.255-.384zM.806 13.693q0-.373.102-.633a.87.87 0 0 1 .302-.399.8.8 0 0 1 .475-.137q.225 0 .398.097a.7.7 0 0 1 .272.26.85.85 0 0 1 .12.381h.765v-.072a1.33 1.33 0 0 0-.466-.964 1.4 1.4 0 0 0-.489-.272 1.8 1.8 0 0 0-.606-.097q-.534 0-.911.223-.375.222-.572.632-.195.41-.196.979v.498q0 .568.193.976.197.407.572.626.375.217.914.217.439 0 .785-.164t.55-.454a1.27 1.27 0 0 0 .226-.674v-.076h-.764a.8.8 0 0 1-.118.363.7.7 0 0 1-.272.25.9.9 0 0 1-.401.087.85.85 0 0 1-.478-.132.83.83 0 0 1-.299-.392 1.7 1.7 0 0 1-.102-.627zm8.239 2.238h-.953l-1.338-3.999h.917l.896 3.138h.038l.888-3.138h.879z"/>
-                </svg>
-                Import CSV
-                </a>
-                <a href="/api/invoice/downloadpdfpage" class="btn btn-md btn-secondary mb-1 downloadPDF">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-filetype-pdf" viewBox="0 0 16 16">
-                    <path fill-rule="evenodd" d="M14 4.5V14a2 2 0 0 1-2 2h-1v-1h1a1 1 0 0 0 1-1V4.5h-2A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v9H2V2a2 2 0 0 1 2-2h5.5zM1.6 11.85H0v3.999h.791v-1.342h.803q.43 0 .732-.173.305-.175.463-.474a1.4 1.4 0 0 0 .161-.677q0-.375-.158-.677a1.2 1.2 0 0 0-.46-.477q-.3-.18-.732-.179m.545 1.333a.8.8 0 0 1-.085.38.57.57 0 0 1-.238.241.8.8 0 0 1-.375.082H.788V12.48h.66q.327 0 .512.181.185.183.185.522m1.217-1.333v3.999h1.46q.602 0 .998-.237a1.45 1.45 0 0 0 .595-.689q.196-.45.196-1.084 0-.63-.196-1.075a1.43 1.43 0 0 0-.589-.68q-.396-.234-1.005-.234zm.791.645h.563q.371 0 .609.152a.9.9 0 0 1 .354.454q.118.302.118.753a2.3 2.3 0 0 1-.068.592 1.1 1.1 0 0 1-.196.422.8.8 0 0 1-.334.252 1.3 1.3 0 0 1-.483.082h-.563zm3.743 1.763v1.591h-.79V11.85h2.548v.653H7.896v1.117h1.606v.638z"/>
-                  </svg>
-                  Download PDF
-                </a>
-                  <h6 style="margin-left: 80%;">Total Invoice  &rAarr; <%= data.length %></h6>
+            </div>
+            <a
+              href="/api/invoice/exportcsvpage"
+              class="btn btn-md btn-secondary mb-1 exportCSV"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                fill="currentColor"
+                class="bi bi-filetype-csv"
+                viewBox="0 0 16 16"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M14 4.5V14a2 2 0 0 1-2 2h-1v-1h1a1 1 0 0 0 1-1V4.5h-2A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v9H2V2a2 2 0 0 1 2-2h5.5zM3.517 14.841a1.13 1.13 0 0 0 .401.823q.195.162.478.252.284.091.665.091.507 0 .859-.158.354-.158.539-.44.187-.284.187-.656 0-.336-.134-.56a1 1 0 0 0-.375-.357 2 2 0 0 0-.566-.21l-.621-.144a1 1 0 0 1-.404-.176.37.37 0 0 1-.144-.299q0-.234.185-.384.188-.152.512-.152.214 0 .37.068a.6.6 0 0 1 .246.181.56.56 0 0 1 .12.258h.75a1.1 1.1 0 0 0-.2-.566 1.2 1.2 0 0 0-.5-.41 1.8 1.8 0 0 0-.78-.152q-.439 0-.776.15-.337.149-.527.421-.19.273-.19.639 0 .302.122.524.124.223.352.367.228.143.539.213l.618.144q.31.073.463.193a.39.39 0 0 1 .152.326.5.5 0 0 1-.085.29.56.56 0 0 1-.255.193q-.167.07-.413.07-.175 0-.32-.04a.8.8 0 0 1-.248-.115.58.58 0 0 1-.255-.384zM.806 13.693q0-.373.102-.633a.87.87 0 0 1 .302-.399.8.8 0 0 1 .475-.137q.225 0 .398.097a.7.7 0 0 1 .272.26.85.85 0 0 1 .12.381h.765v-.072a1.33 1.33 0 0 0-.466-.964 1.4 1.4 0 0 0-.489-.272 1.8 1.8 0 0 0-.606-.097q-.534 0-.911.223-.375.222-.572.632-.195.41-.196.979v.498q0 .568.193.976.197.407.572.626.375.217.914.217.439 0 .785-.164t.55-.454a1.27 1.27 0 0 0 .226-.674v-.076h-.764a.8.8 0 0 1-.118.363.7.7 0 0 1-.272.25.9.9 0 0 1-.401.087.85.85 0 0 1-.478-.132.83.83 0 0 1-.299-.392 1.7 1.7 0 0 1-.102-.627zm8.239 2.238h-.953l-1.338-3.999h.917l.896 3.138h.038l.888-3.138h.879z"
+                />
+              </svg>
+              Export CSV
+            </a>
+            <a
+              href="javascript:void(0)"
+              type="button"
+              class="btn btn-md btn-secondary mb-1 importCSVModal"
+              id="btnCSVImport"
+              data-toggle="modal"
+              data-target="#importCSVModal"
+              title="Import CSV"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                fill="currentColor"
+                class="bi bi-filetype-csv"
+                viewBox="0 0 16 16"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M14 4.5V14a2 2 0 0 1-2 2h-1v-1h1a1 1 0 0 0 1-1V4.5h-2A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v9H2V2a2 2 0 0 1 2-2h5.5zM3.517 14.841a1.13 1.13 0 0 0 .401.823q.195.162.478.252.284.091.665.091.507 0 .859-.158.354-.158.539-.44.187-.284.187-.656 0-.336-.134-.56a1 1 0 0 0-.375-.357 2 2 0 0 0-.566-.21l-.621-.144a1 1 0 0 1-.404-.176.37.37 0 0 1-.144-.299q0-.234.185-.384.188-.152.512-.152.214 0 .37.068a.6.6 0 0 1 .246.181.56.56 0 0 1 .12.258h.75a1.1 1.1 0 0 0-.2-.566 1.2 1.2 0 0 0-.5-.41 1.8 1.8 0 0 0-.78-.152q-.439 0-.776.15-.337.149-.527.421-.19.273-.19.639 0 .302.122.524.124.223.352.367.228.143.539.213l.618.144q.31.073.463.193a.39.39 0 0 1 .152.326.5.5 0 0 1-.085.29.56.56 0 0 1-.255.193q-.167.07-.413.07-.175 0-.32-.04a.8.8 0 0 1-.248-.115.58.58 0 0 1-.255-.384zM.806 13.693q0-.373.102-.633a.87.87 0 0 1 .302-.399.8.8 0 0 1 .475-.137q.225 0 .398.097a.7.7 0 0 1 .272.26.85.85 0 0 1 .12.381h.765v-.072a1.33 1.33 0 0 0-.466-.964 1.4 1.4 0 0 0-.489-.272 1.8 1.8 0 0 0-.606-.097q-.534 0-.911.223-.375.222-.572.632-.195.41-.196.979v.498q0 .568.193.976.197.407.572.626.375.217.914.217.439 0 .785-.164t.55-.454a1.27 1.27 0 0 0 .226-.674v-.076h-.764a.8.8 0 0 1-.118.363.7.7 0 0 1-.272.25.9.9 0 0 1-.401.087.85.85 0 0 1-.478-.132.83.83 0 0 1-.299-.392 1.7 1.7 0 0 1-.102-.627zm8.239 2.238h-.953l-1.338-3.999h.917l.896 3.138h.038l.888-3.138h.879z"
+                />
+              </svg>
+              Import CSV
+            </a>
+            <a
+              href="/api/invoice/downloadpdfpage"
+              class="btn btn-md btn-secondary mb-1 downloadPDF"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                fill="currentColor"
+                class="bi bi-filetype-pdf"
+                viewBox="0 0 16 16"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M14 4.5V14a2 2 0 0 1-2 2h-1v-1h1a1 1 0 0 0 1-1V4.5h-2A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v9H2V2a2 2 0 0 1 2-2h5.5zM1.6 11.85H0v3.999h.791v-1.342h.803q.43 0 .732-.173.305-.175.463-.474a1.4 1.4 0 0 0 .161-.677q0-.375-.158-.677a1.2 1.2 0 0 0-.46-.477q-.3-.18-.732-.179m.545 1.333a.8.8 0 0 1-.085.38.57.57 0 0 1-.238.241.8.8 0 0 1-.375.082H.788V12.48h.66q.327 0 .512.181.185.183.185.522m1.217-1.333v3.999h1.46q.602 0 .998-.237a1.45 1.45 0 0 0 .595-.689q.196-.45.196-1.084 0-.63-.196-1.075a1.43 1.43 0 0 0-.589-.68q-.396-.234-1.005-.234zm.791.645h.563q.371 0 .609.152a.9.9 0 0 1 .354.454q.118.302.118.753a2.3 2.3 0 0 1-.068.592 1.1 1.1 0 0 1-.196.422.8.8 0 0 1-.334.252 1.3 1.3 0 0 1-.483.082h-.563zm3.743 1.763v1.591h-.79V11.85h2.548v.653H7.896v1.117h1.606v.638z"
+                />
+              </svg>
+              Download PDF
+            </a>
+            <a
+              href="/api/invoice/page"
+              class="btn btn-md btn-secondary btnAdd"
+              style="width: 170px"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                fill="currentColor"
+                class="bi bi-calendar2-plus"
+                viewBox="0 0 16 16"
+              >
+                <path
+                  d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5M2 2a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1z"
+                />
+                <path
+                  d="M2.5 4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5H3a.5.5 0 0 1-.5-.5zM8 8a.5.5 0 0 1 .5.5V10H10a.5.5 0 0 1 0 1H8.5v1.5a.5.5 0 0 1-1 0V11H6a.5.5 0 0 1 0-1h1.5V8.5A.5.5 0 0 1 8 8"
+                />
+              </svg>
+              Add Invoice
+            </a>
+            <a href="javascript: void(0)">
+              Total Invoice &rAarr; <%= data.length %>
+            </a>
+            <table
+              id="invoiceTable"
+              class="display hover table table-striped table-bordered table-responsive"
+              style="width: 100%"
+            >
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th style="width: 130px">Invoice No</th>
+                  <th>Name</th>
+                  <th>Phone</th>
+                  <th>Email</th>
+                  <th>Address</th>
+                  <th style="width: 190px">Date</th>
+                  <th>Total</th>
+                  <th style="width: 180px">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% if(data && data.length> 0) { %> <% data.forEach((invoice)=> {
+                var value = invoice.total_amount; var valueStr =
+                value.toString(); var splitValues = []; while (valueStr) {
+                splitValues.unshift(valueStr.slice(-3)); valueStr =
+                valueStr.slice(0, -3); } var split_total_amount =
+                splitValues.join(','); %>
 
-              <div class="container" style="margin-left: 78%;">
-                <a href="/api/invoice/page" class="btn btn-icon btn-md btn-secondary btnAdd" style="width: 170px; padding: 10px; margin: 2px;">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-calendar2-plus" viewBox="0 0 16 16">
-                    <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5M2 2a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1z"/>
-                    <path d="M2.5 4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5H3a.5.5 0 0 1-.5-.5zM8 8a.5.5 0 0 1 .5.5V10H10a.5.5 0 0 1 0 1H8.5v1.5a.5.5 0 0 1-1 0V11H6a.5.5 0 0 1 0-1h1.5V8.5A.5.5 0 0 1 8 8"/>
-                  </svg>
-                  Add Invoice
-                </a>
+                <tr>
+                  <td><%= invoice.invoice_id %></td>
+                  <td><%= invoice.invoice_no %></td>
+                  <td><%= invoice.customer_name %></td>
+                  <td>0<%= invoice.customer_phone %></td>
+                  <td><%= invoice.customer_email %></td>
+                  <td><%= invoice.customer_address %></td>
+                  <td><%= invoice.invoice_date %></td>
+                  <td><%= split_total_amount %></td>
+                  <td>
+                    <button
+                      type="button"
+                      class="btn btn-icon btn-md btnView"
+                      id="btnView"
+                      data-id="<%= invoice.invoice_id %>"
+                      data-toggle="modal"
+                      data-target="#invoiceViewModal"
+                      title="View Detail"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        fill="currentColor"
+                        class="bi bi-eye-fill"
+                        viewBox="0 0 16 16"
+                      >
+                        <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0" />
+                        <path
+                          d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8m8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7"
+                        />
+                      </svg>
+                    </button>
+
+                    <button
+                      type="button"
+                      class="btn btn-icon btn-md btnEdit"
+                      id="btnEdit"
+                      data-id="<%= invoice.invoice_id %>"
+                      title="Edit Invoice"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        fill="currentColor"
+                        class="bi bi-pencil-square"
+                        viewBox="0 0 16 16"
+                      >
+                        <path
+                          d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"
+                        />
+                        <path
+                          fill-rule="evenodd"
+                          d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"
+                        />
+                      </svg>
+                    </button>
+
+                    <button
+                      type="button"
+                      class="btn btn-icon btn-md btnDelete"
+                      data-id="<%= invoice.invoice_id %>"
+                      title="Delete Invoice"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        fill="currentColor"
+                        class="bi bi-trash3-fill"
+                        viewBox="0 0 16 16"
+                      >
+                        <path
+                          d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5m-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5M4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06m6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528M8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5"
+                        />
+                      </svg>
+                    </button>
+                  </td>
+                </tr>
+                <% }); %> <% }%>
+              </tbody>
+              <tfoot>
+                <tr>
+                  <th class="text-right" colspan="7">Total Amount per Page</th>
+                  <th id="totalAmountFooter"></th>
+                  <th></th>
+                </tr>
+              </tfoot>
+            </table>
+            <!-- Modal -->
+            <div
+              id="invoiceViewModal"
+              class="modal animated fadeIn bs-example-modal-lg bs-example-modal-center ml-5"
+              tabindex="-1"
+              role="dialog"
+              aria-hidden="true"
+            >
+              <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content">
+                  <div class="modal-header justify-content-between bg-white">
+                    <h5 class="page-title text-dark">Invoice Detail View</h5>
+                    <button
+                      class="btn btn-success btn-icon btnPrint"
+                      id="btnPrint"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        fill="currentColor"
+                        class="bi bi-printer-fill"
+                        viewBox="0 0 16 16"
+                      >
+                        <path
+                          d="M5 1a2 2 0 0 0-2 2v1h10V3a2 2 0 0 0-2-2zm6 8H5a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1"
+                        />
+                        <path
+                          d="M0 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-1v-2a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v2H2a2 2 0 0 1-2-2zm2.5 1a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1"
+                        />
+                      </svg>
+                    </button>
+
+                    <button
+                      class="btn btn-success btn-icon btnDownload"
+                      id="btnDownload"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        fill="currentColor"
+                        class="bi bi-cloud-arrow-down"
+                        viewBox="0 0 16 16"
+                      >
+                        <path
+                          fill-rule="evenodd"
+                          d="M7.646 10.854a.5.5 0 0 0 .708 0l2-2a.5.5 0 0 0-.708-.708L8.5 9.293V5.5a.5.5 0 0 0-1 0v3.793L6.354 8.146a.5.5 0 1 0-.708.708z"
+                        />
+                        <path
+                          d="M4.406 3.342A5.53 5.53 0 0 1 8 2c2.69 0 4.923 2 5.166 4.579C14.758 6.804 16 8.137 16 9.773 16 11.569 14.502 13 12.687 13H3.781C1.708 13 0 11.366 0 9.318c0-1.763 1.266-3.223 2.942-3.593.143-.863.698-1.723 1.464-2.383m.653.757c-.757.653-1.153 1.44-1.153 2.056v.448l-.445.049C2.064 6.805 1 7.952 1 9.318 1 10.785 2.23 12 3.781 12h8.906C13.98 12 15 10.988 15 9.773c0-1.216-1.02-2.228-2.313-2.228h-.5v-.5C12.188 4.825 10.328 3 8 3a4.53 4.53 0 0 0-2.941 1.1z"
+                        />
+                      </svg>
+                    </button>
+
+                    <button
+                      class="btn btn-success btn-icon pdfDownload"
+                      id="pdfDownload"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        fill="currentColor"
+                        class="bi bi-filetype-pdf"
+                        viewBox="0 0 16 16"
+                      >
+                        <path
+                          fill-rule="evenodd"
+                          d="M14 4.5V14a2 2 0 0 1-2 2h-1v-1h1a1 1 0 0 0 1-1V4.5h-2A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v9H2V2a2 2 0 0 1 2-2h5.5zM1.6 11.85H0v3.999h.791v-1.342h.803q.43 0 .732-.173.305-.175.463-.474a1.4 1.4 0 0 0 .161-.677q0-.375-.158-.677a1.2 1.2 0 0 0-.46-.477q-.3-.18-.732-.179m.545 1.333a.8.8 0 0 1-.085.38.57.57 0 0 1-.238.241.8.8 0 0 1-.375.082H.788V12.48h.66q.327 0 .512.181.185.183.185.522m1.217-1.333v3.999h1.46q.602 0 .998-.237a1.45 1.45 0 0 0 .595-.689q.196-.45.196-1.084 0-.63-.196-1.075a1.43 1.43 0 0 0-.589-.68q-.396-.234-1.005-.234zm.791.645h.563q.371 0 .609.152a.9.9 0 0 1 .354.454q.118.302.118.753a2.3 2.3 0 0 1-.068.592 1.1 1.1 0 0 1-.196.422.8.8 0 0 1-.334.252 1.3 1.3 0 0 1-.483.082h-.563zm3.743 1.763v1.591h-.79V11.85h2.548v.653H7.896v1.117h1.606v.638z"
+                        />
+                      </svg>
+                    </button>
+
+                    <p data-dismiss="modal" aria-label="Close">
+                      <span class="text-dark" aria-hidden="true">&times;</span>
+                    </p>
+                  </div>
+                  <div class="modal-body" id="modal-body"></div>
+                </div>
               </div>
-              <table id="invoiceTable" class="display hover table table-striped table-bordered table-responsive" style="width:100%">
-                  <thead>
-                    <tr>
-                      <th>ID</th>
-                      <th style="width: 130px;">Invoice No</th>
-                      <th>Name</th>
-                      <th>Phone</th>
-                      <th>Email</th>
-                      <th>Address</th>
-                      <th style="width: 190px;">Date</th>
-                      <th>Total</th>
-                      <th style="width: 180px;">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <% if(data && data.length > 0) { %>
-                      <% data.forEach((invoice) => {  
-                          var value = invoice.total_amount;
-                          var valueStr = value.toString();
-                          var splitValues = [];
-                          while (valueStr) {
-                              splitValues.unshift(valueStr.slice(-3));
-                              valueStr = valueStr.slice(0, -3);
-                          }
-                          var split_total_amount = splitValues.join(',');    
-                      %>
-                          
-                        <tr>
-                          <td><%= invoice.invoice_id %></td>
-                          <td><%= invoice.invoice_no %></td>
-                          <td><%= invoice.customer_name %></td>
-                          <td>0<%= invoice.customer_phone %></td>
-                          <td><%= invoice.customer_email %></td>
-                          <td><%= invoice.customer_address %></td>
-                          <td><%= invoice.invoice_date %></td>
-                          <td><%= split_total_amount %></td>
-                          <td>
-                          <button type="button" class="btn btn-icon btn-md btnView" id="btnView" data-id="<%= invoice.invoice_id %>" data-toggle="modal" data-target="#invoiceViewModal" title="View Detail">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-fill" viewBox="0 0 16 16">
-                                  <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0"/>
-                                  <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8m8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7"/>
-                              </svg>
-                          </button>
+            </div>
+            <!-- /.Modal -->
 
-                          <button type="button" class="btn btn-icon btn-md btnEdit" id="btnEdit" data-id="<%= invoice.invoice_id %>" title="Edit Invoice">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
-                              <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
-                              <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/>
-                            </svg>
-                        </button>
-
-                          <button type="button" class="btn btn-icon btn-md btnDelete" data-id="<%= invoice.invoice_id %>" title="Delete Invoice">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3-fill" viewBox="0 0 16 16">
-                              <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5m-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5M4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06m6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528M8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5"/>
-                            </svg>
-                          </button>
-                          </td>
-                        </tr>
-                      <% }); %>
-                    <% }%>
-                  </tbody>
-                  <tfoot>
-                    <tr>
-                      <th class="text-right" colspan="7">Total Amount per Page</th>
-                      <th id="totalAmountFooter"></th> 
-                      <th></th>
-                    </tr>
-                  </tfoot>
-                </table>
-                <!-- Modal -->
-                <div id="invoiceViewModal" class="modal animated fadeIn bs-example-modal-lg bs-example-modal-center ml-5" tabindex="-1" role="dialog" aria-hidden="true">
-                    <div class="modal-dialog modal-lg modal-dialog-centered">
-                        <div class="modal-content">
-                            <div class="modal-header justify-content-between bg-white">
-                                <h5 class="page-title text-dark">Invoice Detail View</h5>
-                                <button class="btn btn-success btn-icon btnPrint" id="btnPrint">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-printer-fill" viewBox="0 0 16 16">
-                                    <path d="M5 1a2 2 0 0 0-2 2v1h10V3a2 2 0 0 0-2-2zm6 8H5a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1"/>
-                                    <path d="M0 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-1v-2a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v2H2a2 2 0 0 1-2-2zm2.5 1a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1"/>
-                                  </svg>
-                                </button>
-
-                                <button class="btn btn-success btn-icon btnDownload" id="btnDownload">
-                                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-cloud-arrow-down" viewBox="0 0 16 16">
-                                    <path fill-rule="evenodd" d="M7.646 10.854a.5.5 0 0 0 .708 0l2-2a.5.5 0 0 0-.708-.708L8.5 9.293V5.5a.5.5 0 0 0-1 0v3.793L6.354 8.146a.5.5 0 1 0-.708.708z"/>
-                                    <path d="M4.406 3.342A5.53 5.53 0 0 1 8 2c2.69 0 4.923 2 5.166 4.579C14.758 6.804 16 8.137 16 9.773 16 11.569 14.502 13 12.687 13H3.781C1.708 13 0 11.366 0 9.318c0-1.763 1.266-3.223 2.942-3.593.143-.863.698-1.723 1.464-2.383m.653.757c-.757.653-1.153 1.44-1.153 2.056v.448l-.445.049C2.064 6.805 1 7.952 1 9.318 1 10.785 2.23 12 3.781 12h8.906C13.98 12 15 10.988 15 9.773c0-1.216-1.02-2.228-2.313-2.228h-.5v-.5C12.188 4.825 10.328 3 8 3a4.53 4.53 0 0 0-2.941 1.1z"/>
-                                  </svg>
-                                </button>
-
-                                <button class="btn btn-success btn-icon pdfDownload" id="pdfDownload">
-                                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-filetype-pdf" viewBox="0 0 16 16">
-                                    <path fill-rule="evenodd" d="M14 4.5V14a2 2 0 0 1-2 2h-1v-1h1a1 1 0 0 0 1-1V4.5h-2A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v9H2V2a2 2 0 0 1 2-2h5.5zM1.6 11.85H0v3.999h.791v-1.342h.803q.43 0 .732-.173.305-.175.463-.474a1.4 1.4 0 0 0 .161-.677q0-.375-.158-.677a1.2 1.2 0 0 0-.46-.477q-.3-.18-.732-.179m.545 1.333a.8.8 0 0 1-.085.38.57.57 0 0 1-.238.241.8.8 0 0 1-.375.082H.788V12.48h.66q.327 0 .512.181.185.183.185.522m1.217-1.333v3.999h1.46q.602 0 .998-.237a1.45 1.45 0 0 0 .595-.689q.196-.45.196-1.084 0-.63-.196-1.075a1.43 1.43 0 0 0-.589-.68q-.396-.234-1.005-.234zm.791.645h.563q.371 0 .609.152a.9.9 0 0 1 .354.454q.118.302.118.753a2.3 2.3 0 0 1-.068.592 1.1 1.1 0 0 1-.196.422.8.8 0 0 1-.334.252 1.3 1.3 0 0 1-.483.082h-.563zm3.743 1.763v1.591h-.79V11.85h2.548v.653H7.896v1.117h1.606v.638z"/>
-                                  </svg>
-                                </button>
-
-                                <p data-dismiss="modal" aria-label="Close"><span class="text-dark" aria-hidden="true">&times;</span></p>
-                            </div>
-                            <div class="modal-body" id="modal-body"> 
-                              
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- /.Modal -->
-
-
-                <div id="importCSVModal" class="modal animated fadeIn bs-example-modal-lg bs-example-modal-center ml-5" tabindex="-1" role="dialog" aria-hidden="true">
-                  <div class="modal-dialog modal-xl modal-dialog-centered">
-                      <div class="modal-content">
-                          <div class="modal-header justify-content-between bg-white">
-                              <h5 class="page-title text-dark">Select CSV File</h5>
-                              <p data-dismiss="modal" aria-label="Close"><span class="text-dark" aria-hidden="true">&times;</span></p>
-                          </div>
-                          <div class="modal-body" id="modal-body">
-                            <form id="csvUploadForm" action="/api/invoice/importcsvpage" method="post" enctype="multipart/form-data">
-                              <!-- <input type="file" accept=".csv" name="file"> -->
-                              <input type="file" accept=".csv" name="file" id="fileInput" onchange="handleFile()">
-                              <input type="submit" class="btn btn-secondary" id="btnUpload" name="btnUpload" value="Upload">
-                              <div id="fileDisplayArea"></div>
-                            </form>
-                          </div>
-                      </div>
+            <div
+              id="importCSVModal"
+              class="modal animated fadeIn bs-example-modal-lg bs-example-modal-center ml-5"
+              tabindex="-1"
+              role="dialog"
+              aria-hidden="true"
+            >
+              <div class="modal-dialog modal-xl modal-dialog-centered">
+                <div class="modal-content">
+                  <div class="modal-header justify-content-between bg-white">
+                    <h5 class="page-title text-dark">Select CSV File</h5>
+                    <p data-dismiss="modal" aria-label="Close">
+                      <span class="text-dark" aria-hidden="true">&times;</span>
+                    </p>
+                  </div>
+                  <div class="modal-body" id="modal-body">
+                    <form
+                      id="csvUploadForm"
+                      action="/api/invoice/importcsvpage"
+                      method="post"
+                      enctype="multipart/form-data"
+                    >
+                      <!-- <input type="file" accept=".csv" name="file"> -->
+                      <input
+                        type="file"
+                        accept=".csv"
+                        name="file"
+                        id="fileInput"
+                        onchange="handleFile()"
+                      />
+                      <input
+                        type="submit"
+                        class="btn btn-secondary"
+                        id="btnUpload"
+                        name="btnUpload"
+                        value="Upload"
+                      />
+                      <div id="fileDisplayArea"></div>
+                    </form>
                   </div>
                 </div>
-              <!-- /.Modal -->
+              </div>
             </div>
+            <!-- /.Modal -->
+          </div>
         </div>
-    </div>
-
-    <form id="invoiceEditForm">
-      <div class="row" style="margin-left: 100px;">
-        <a class="nav-link text-secondary" href="/" style="font-size: large;">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-house-door" viewBox="0 0 16 16">
-            <path d="M8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4.5a.5.5 0 0 0 .5-.5v-4h2v4a.5.5 0 0 0 .5.5H14a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293zM2.5 14V7.707l5.5-5.5 5.5 5.5V14H10v-4a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5v4z"/>
-          </svg>
-          Home 
-          &GreaterGreater;
-          </a>
-          <a class="nav-link text-secondary" href="/api/invoice/listpage" style="font-size: large;">
-          Invoice List
-          &GreaterGreater;
-          </a>
-          <a class="nav-link text-secondary" href="javascript:void(0)" style="font-size: large;">Invoice Edit Page</a>
       </div>
-      <h4 class="sale-title ml-5 mt-2 mb-2">Sales Invoice</h4>
-        <div class="container">
-            <input type="hidden" name="invoice_id" id="invoice_id">
-            <div class="customer_name">
-              <label for="customer_name">Customer Name :</label>
-              <input type="text" class="ml-5" name="customer_name" placeholder="Enter Customer Name">
-            </div>
-            <label for="customer_phone">
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-              Customer Phone :</label>
-            <input type="text" class="ml-5" name="customer_phone" placeholder="Enter Customer Phone"> <br><br>
-            <div class="customer_email">
-              <label for="customer_email">Customer Email :</label>
-              &nbsp;<input type="text" class="ml-5" name="customer_email" placeholder="Enter Customer Email">
-            </div>
-            <label for="customer_address">
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-              Customer Address :</label>
-            <input type="text" class="ml-5" name="customer_address" placeholder="Enter Customer Address">
+
+      <form id="invoiceEditForm">
+        <div class="row" style="margin-left: 100px">
+          <a class="nav-link text-secondary" href="/" style="font-size: large">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              fill="currentColor"
+              class="bi bi-house-door"
+              viewBox="0 0 16 16"
+            >
+              <path
+                d="M8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4.5a.5.5 0 0 0 .5-.5v-4h2v4a.5.5 0 0 0 .5.5H14a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293zM2.5 14V7.707l5.5-5.5 5.5 5.5V14H10v-4a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5v4z"
+              />
+            </svg>
+            Home &GreaterGreater;
+          </a>
+          <a
+            class="nav-link text-secondary"
+            href="/api/invoice/listpage"
+            style="font-size: large"
+          >
+            Invoice List &GreaterGreater;
+          </a>
+          <a
+            class="nav-link text-secondary"
+            href="javascript:void(0)"
+            style="font-size: large"
+            >Invoice Edit Page</a
+          >
         </div>
-      
+        <h4 class="sale-title ml-5 mt-2 mb-2">Sales Invoice</h4>
+        <div class="container">
+          <input type="hidden" name="invoice_id" id="invoice_id" />
+          <div class="customer_name">
+            <label for="customer_name">Customer Name :</label>
+            <input
+              type="text"
+              class="ml-5"
+              name="customer_name"
+              placeholder="Enter Customer Name"
+            />
+          </div>
+          <label for="customer_phone">
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            Customer Phone :</label
+          >
+          <input
+            type="text"
+            class="ml-5"
+            name="customer_phone"
+            placeholder="Enter Customer Phone"
+          />
+          <br /><br />
+          <div class="customer_email">
+            <label for="customer_email">Customer Email :</label>
+            &nbsp;<input
+              type="text"
+              class="ml-5"
+              name="customer_email"
+              placeholder="Enter Customer Email"
+            />
+          </div>
+          <label for="customer_address">
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            Customer Address :</label
+          >
+          <input
+            type="text"
+            class="ml-5"
+            name="customer_address"
+            placeholder="Enter Customer Address"
+          />
+        </div>
+
         <h4 class="stock-title ml-5">Stock List</h4>
         <div class="mr-3">
-          <input type="button" class="btn btn-secondary btn-md mb-2 add_button" value="ADD"> 
+          <input
+            type="button"
+            class="btn btn-secondary btn-md mb-2 add_button"
+            value="ADD"
+          />
         </div>
         <div id="editTable">
           <table>
-          <thead>
-            <tr>
-              <th>Stock Code</th>
-              <th>Stock Description</th>
-              <th>Stock Price</th>
-              <th>Stock Quantity</th>
-              <th>Amount</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody  id="stockList">
-            
-          </tbody>
-        </table>
+            <thead>
+              <tr>
+                <th>Stock Code</th>
+                <th>Stock Description</th>
+                <th>Stock Price</th>
+                <th>Stock Quantity</th>
+                <th>Amount</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="stockList"></tbody>
+          </table>
         </div>
         <div class="total">Total Amount: <span id="totalAmount">0</span></div>
-        <input type="hidden" name="total_amount" value="0">
-        <br>
-        <input type="button" class="btn btn-secondary" id="btnUpdate" name="btnUpdate" value="UPDATE">
-    </form>
-    <footer class="text-center text-lg-start text-white" style="background-color: #1c2331; margin-top: 10px;">
-      <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.2)">
-        <a class="text-white" href="/"> © 2024 All Right Reserved</a>
-      </div>
-    </footer>  
-</div>
-<script>
+        <input type="hidden" name="total_amount" value="0" />
+        <br />
+        <input
+          type="button"
+          class="btn btn-secondary"
+          id="btnUpdate"
+          name="btnUpdate"
+          value="UPDATE"
+        />
+      </form>
+      <footer
+        class="text-center text-lg-start text-white"
+        style="background-color: #1c2331; margin-top: 10px"
+      >
+        <div
+          class="text-center p-3"
+          style="background-color: rgba(0, 0, 0, 0.2)"
+        >
+          <a class="text-white" href="/"> © 2024 All Right Reserved</a>
+        </div>
+      </footer>
+    </div>
+    <script>
+      new DataTable("#invoiceTable", {
+        lengthMenu: [
+          [10, 25, 50, 100, 200, -1],
+          [10, 25, 50, 100, 200, "All"],
+        ],
+        responsive: true,
+        processing: true,
+        footerCallback: function (row, data, start, end, display) {
+          var api = this.api();
+          var pageTotal = api
+            .column(7, { page: "current" })
+            .data()
+            .reduce(function (a, b) {
+              return parseInt(a) + parseInt(b.replace(/,/g, ""));
+            }, 0);
+          $("#totalAmountFooter").html(pageTotal.toLocaleString());
+        },
+      });
 
-  new DataTable('#invoiceTable', {
-      lengthMenu: [
-          [10, 25, 50,100,200, -1],
-          [10, 25, 50,100,200, 'All']
-      ],
-      responsive: true,
-      processing: true,
-      "footerCallback": function(row, data, start, end, display) {
-      var api = this.api();
-      var pageTotal = api.column(7, { page: 'current' }).data().reduce(function(a, b) {
-        return parseInt(a) + parseInt(b.replace(/,/g, ''));
-      }, 0);
-      $('#totalAmountFooter').html(pageTotal.toLocaleString());
-    }
-  });
+      function handleFile() {
+        const fileInput = document.getElementById("fileInput");
+        const fileDisplayArea = document.getElementById("fileDisplayArea");
 
-  function handleFile() {
-  const fileInput = document.getElementById('fileInput');
-  const fileDisplayArea = document.getElementById('fileDisplayArea');
+        const file = fileInput.files[0];
+        const reader = new FileReader();
 
-  const file = fileInput.files[0];
-  const reader = new FileReader();
+        reader.onload = function (e) {
+          const contents = e.target.result;
+          const rows = contents.split("\n");
 
-  reader.onload = function (e) {
-    const contents = e.target.result;
-    const rows = contents.split('\n');
+          let tableHTML = "<table>";
+          for (let i = 0; i < rows.length; i++) {
+            const cells = rows[i].split(",");
+            tableHTML += "<tr>";
+            for (let j = 0; j < cells.length; j++) {
+              tableHTML += `<td>${cells[j]}</td>`;
+            }
+            tableHTML += "</tr>";
+          }
+          tableHTML += "</table>";
 
-    let tableHTML = '<table>';
-    for (let i = 0; i < rows.length; i++) {
-      const cells = rows[i].split(',');
-      tableHTML += '<tr>';
-      for (let j = 0; j < cells.length; j++) {
-        tableHTML += `<td>${cells[j]}</td>`;
+          fileDisplayArea.innerHTML = tableHTML;
+        };
+
+        reader.readAsText(file);
       }
-      tableHTML += '</tr>';
-    }
-    tableHTML += '</table>';
-
-    fileDisplayArea.innerHTML = tableHTML;
-  };
-
-  reader.readAsText(file);
-}
-
-</script>
-</body>
+    </script>
+  </body>
 </html>
