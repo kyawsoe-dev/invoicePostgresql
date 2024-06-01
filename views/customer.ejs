@@ -52,16 +52,17 @@
             style="font-size: large"
             >Customer List</a
           >
+          <a
+            style="margin-top: 12px; margin-left: 100px"
+            href="javascript:voide(0)"
+          >
+            <h6>Total Customer &rAarr; <%= data.length %></h6>
+          </a>
 
           <button
             type="button"
-            class="btn btn-icon btn-md btn-secondary btnAdd"
-            style="
-              width: 170px;
-              padding: 10px;
-              margin-top: 10px;
-              margin-left: 150px;
-            "
+            class="btn btn-md btn-secondary btnAdd"
+            style="width: 190px; margin-top: 10px; margin-left: 390px"
             id="btnAdd"
             data-toggle="modal"
             data-target="#addCustomerModal"
@@ -85,9 +86,6 @@
             </svg>
             Add Customer
           </button>
-          <a class="mt-4 ml-3" href="javascript:voide(0)">
-            <h6>Total Customer &rAarr; <%= data.length %></h6></a
-          >
         </div>
 
         <table
