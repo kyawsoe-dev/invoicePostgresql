@@ -1,43 +1,43 @@
 const invoiceModel = require("../model/invoice");
-require('dotenv').config();
-const jwt = require('jsonwebtoken');
+require("dotenv").config();
+const jwt = require("jsonwebtoken");
 var ITEMS_PER_PAGE = 10;
-const path = require('path');
+const path = require("path");
 
 // GET Invoice Page
-exports.getInvoicePage = async(req, res) => {
+exports.getInvoicePage = async (req, res) => {
   const token = req.cookies.token;
   if (!token) {
-    return res.status(401).json({ message: 'Authentication required' });
+    return res.status(401).json({ message: "Authentication required" });
   }
 
   const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
   const name = decodedToken.name;
   const profile_image = decodedToken.profile_image;
-  res.render('invoice', {
+  res.render("invoice", {
     title: "Invoice Page",
     name: name,
-    profile_image
-  })
-}
+    profile_image,
+  });
+};
 
 exports.getInvoiceListPage = async (req, res) => {
   try {
-    const invoiceList  = await invoiceModel.getInvoiceList();
+    const invoiceList = await invoiceModel.getInvoiceList();
     const token = req.cookies.token;
     if (!token) {
-      return res.status(401).json({ message: 'Authentication required' });
+      return res.status(401).json({ message: "Authentication required" });
     }
-  
+
     const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
     const name = decodedToken.name;
     const profile_image = decodedToken.profile_image;
-    res.render('invoice_list', {
+    res.render("invoice_list", {
       title: "Invoice List Page",
       data: invoiceList,
       query: req.query,
       name: name,
-      profile_image
+      profile_image,
     });
   } catch (error) {
     console.log(error);
@@ -48,16 +48,23 @@ exports.getInvoiceListPage = async (req, res) => {
 // GET Invoice List
 exports.getInvoice = async (req, res) => {
   const page = +req.query.page || 1;
-  const search = req.query.search || '';
+  const search = req.query.search || "";
   const filter_count = req.query.sort;
   ITEMS_PER_PAGE = filter_count || ITEMS_PER_PAGE;
 
-  console.log(ITEMS_PER_PAGE, "PAGE")
+  console.log(ITEMS_PER_PAGE, "PAGE");
 
-  const columnsMap = ["invoice_no", "customer_name", "customer_phone", "customer_email", "customer_address", "stock_code"];
+  const columnsMap = [
+    "invoice_no",
+    "customer_name",
+    "customer_phone",
+    "customer_email",
+    "customer_address",
+    "stock_code",
+  ];
 
   const filter = columnsMap.reduce((acc, col) => {
-    acc[col] = search || '';
+    acc[col] = search || "";
     return acc;
   }, {});
 
@@ -66,13 +73,13 @@ exports.getInvoice = async (req, res) => {
       page,
       ITEMS_PER_PAGE,
       filter
-    ); 
+    );
     const startIndex = (page - 1) * ITEMS_PER_PAGE + 1;
     for (let i = 0; i < invoiceList.length; i++) {
       invoiceList[i].custom_id = startIndex + i;
     }
-    res.status(200).json({ 
-      message: "Invoice List", 
+    res.status(200).json({
+      message: "Invoice List",
       data: invoiceList,
       query: req.query,
       currentPage: page,
@@ -82,7 +89,26 @@ exports.getInvoice = async (req, res) => {
       totalItems: totalItems,
       previousPage: page - 1,
       perPage: ITEMS_PER_PAGE,
-      lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE)
+      lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE),
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+exports.getAllInvoice = async (req, res) => {
+  try {
+    const invoiceList = await invoiceModel.getInvoiceList();
+    const totalItems = invoiceList.length;
+    const allInvoiceList = invoiceList.map((invoice, index) => ({
+      ...invoice,
+      custom_id: index + 1,
+    }));
+    res.status(200).json({
+      message: "All Invoice List",
+      totalInvoice: totalItems,
+      data: allInvoiceList,
     });
   } catch (error) {
     console.log(error);
@@ -95,12 +121,9 @@ exports.createInvoice = async (req, res) => {
   const body = req.body;
   console.log(body, "Payload Data");
   try {
-    
     await invoiceModel.createInvoice(body);
 
-    res
-      .status(200)
-      .json({ message: "Invoice Created Successfully"});
+    res.status(200).json({ message: "Invoice Created Successfully" });
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "Internal Server Error" });
@@ -121,7 +144,9 @@ exports.getInvoiceById = async (req, res) => {
     res.status(200).json({ message: "Invoice Data", data: invoiceData });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: `Error fetching invoice: ${error.message}` });
+    res
+      .status(500)
+      .json({ message: `Error fetching invoice: ${error.message}` });
   }
 };
 
@@ -160,10 +185,8 @@ exports.deleteInvoiceById = async (req, res) => {
   }
 };
 
-
-
 // export csv
-const { createObjectCsvWriter } = require('csv-writer');
+const { createObjectCsvWriter } = require("csv-writer");
 const today = new Date().toISOString().slice(0, 10);
 const currentTime = new Date().getTime();
 const fileName = `${today}_${currentTime}_invoicelist.csv`;
@@ -171,29 +194,28 @@ const fileName = `${today}_${currentTime}_invoicelist.csv`;
 const csvWriter = createObjectCsvWriter({
   path: fileName,
   header: [
-    { id: 'invoice_id', title: 'Invoice ID' },
-    { id: 'invoice_no', title: 'Invoice Number' },
-    { id: 'total_amount', title: 'Total Amount' },
-    { id: 'invoice_date', title: 'Invoice Date' },
-    { id: 'customer_id', title: 'Customer ID' },
-    { id: 'customer_name', title: 'Customer Name' },
-    { id: 'customer_phone', title: 'Customer Phone' },
-    { id: 'customer_email', title: 'Customer Email' },
-    { id: 'customer_address', title: 'Customer Address' },
-    { id: 'stock_id', title: 'Stock ID' },
-    { id: 'stock_code', title: 'Stock Code' },
-    { id: 'stock_description', title: 'Stock Description' },
-    { id: 'stock_price', title: 'Stock Price' },
-    { id: 'stock_quantity', title: 'Stock Quantity' }
-  ]
+    { id: "invoice_id", title: "Invoice ID" },
+    { id: "invoice_no", title: "Invoice Number" },
+    { id: "total_amount", title: "Total Amount" },
+    { id: "invoice_date", title: "Invoice Date" },
+    { id: "customer_id", title: "Customer ID" },
+    { id: "customer_name", title: "Customer Name" },
+    { id: "customer_phone", title: "Customer Phone" },
+    { id: "customer_email", title: "Customer Email" },
+    { id: "customer_address", title: "Customer Address" },
+    { id: "stock_id", title: "Stock ID" },
+    { id: "stock_code", title: "Stock Code" },
+    { id: "stock_description", title: "Stock Description" },
+    { id: "stock_price", title: "Stock Price" },
+    { id: "stock_quantity", title: "Stock Quantity" },
+  ],
 });
-
 
 exports.exportCSV = async (req, res) => {
   try {
     const invoiceList = await invoiceModel.exportCSV();
     if (invoiceList.length === 0) {
-      return res.status(404).json({ message: 'There is no Data to Export' });
+      return res.status(404).json({ message: "There is no Data to Export" });
     }
 
     const flattenedData = [];
@@ -213,7 +235,7 @@ exports.exportCSV = async (req, res) => {
           stock_code: stockItem.stock_code,
           stock_description: stockItem.stock_description,
           stock_price: stockItem.stock_price,
-          stock_quantity: stockItem.stock_quantity
+          stock_quantity: stockItem.stock_quantity,
         });
       }
     }
@@ -224,86 +246,94 @@ exports.exportCSV = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ message: 'Internal Server Error' });
+    res.status(500).json({ message: "Internal Server Error" });
   }
 };
 
 // import csv
-const csv = require('csv-parser');
-const fs = require('fs');
-const middleware = require('../helper/upload_middleware').csvUpload;
+const csv = require("csv-parser");
+const fs = require("fs");
+const middleware = require("../helper/upload_middleware").csvUpload;
 
-exports.importCSV = [middleware.single('file'), async (req, res) => {
+exports.importCSV = [
+  middleware.single("file"),
+  async (req, res) => {
     try {
-        if (!req.file) {
-            return res.status(404).json({ message: 'No file uploaded' });
-        }
+      if (!req.file) {
+        return res.status(404).json({ message: "No file uploaded" });
+      }
 
-        const results = [];
-        fs.createReadStream(req.file.path)
-            .pipe(csv())
-            .on('data', async (data) => {
-                try {
-                    const totalAmount = parseInt(data['Total Amount'], 10);
-                    const stockPrice = parseInt(data['Stock Price'], 10);
-                    const stockQuantity = parseInt(data['Stock Quantity'], 10);
+      const results = [];
+      fs.createReadStream(req.file.path)
+        .pipe(csv())
+        .on("data", async (data) => {
+          try {
+            const totalAmount = parseInt(data["Total Amount"], 10);
+            const stockPrice = parseInt(data["Stock Price"], 10);
+            const stockQuantity = parseInt(data["Stock Quantity"], 10);
 
-                    if (isNaN(totalAmount) || isNaN(stockPrice) || isNaN(stockQuantity)) {
-                        throw new Error('Invalid numeric value in CSV');
-                    }
+            if (
+              isNaN(totalAmount) ||
+              isNaN(stockPrice) ||
+              isNaN(stockQuantity)
+            ) {
+              throw new Error("Invalid numeric value in CSV");
+            }
 
-                    const invoiceData = {
-                        total_amount: totalAmount,
-                        customer_name: data['Customer Name'],
-                        customer_phone: data['Customer Phone'],
-                        customer_email: data['Customer Email'],
-                        customer_address: data['Customer Address'],
-                        stock_data: [
-                            {
-                                stock_code: data['Stock Code'],
-                                stock_description: data['Stock Description'],
-                                stock_price: stockPrice,
-                                stock_quantity: stockQuantity
-                            }
-                        ]
-                    };
-                    const importedData = await invoiceModel.importCSV(invoiceData);
-                    results.push(importedData);
-                } catch (error) {
-                    console.error(`Error importing CSV data: ${error.message}`);
-                }
-            })
-            .on('end', () => {
-                console.log('CSV file successfully Imported');
-                res.status(200).json({
-                  message: "CSV File Successfully Imported"
-                });
-            });
+            const invoiceData = {
+              total_amount: totalAmount,
+              customer_name: data["Customer Name"],
+              customer_phone: data["Customer Phone"],
+              customer_email: data["Customer Email"],
+              customer_address: data["Customer Address"],
+              stock_data: [
+                {
+                  stock_code: data["Stock Code"],
+                  stock_description: data["Stock Description"],
+                  stock_price: stockPrice,
+                  stock_quantity: stockQuantity,
+                },
+              ],
+            };
+            const importedData = await invoiceModel.importCSV(invoiceData);
+            results.push(importedData);
+          } catch (error) {
+            console.error(`Error importing CSV data: ${error.message}`);
+          }
+        })
+        .on("end", () => {
+          console.log("CSV file successfully Imported");
+          res.status(200).json({
+            message: "CSV File Successfully Imported",
+          });
+        });
     } catch (error) {
-        console.log(error);
-        res.status(500).json({ message: 'Internal Server Error' });
+      console.log(error);
+      res.status(500).json({ message: "Internal Server Error" });
     }
-}];
-
+  },
+];
 
 // download pdf
-const PDFDocument = require('pdfkit');
+const PDFDocument = require("pdfkit");
 
 exports.downloadPDF = async (req, res) => {
   try {
     const invoiceList = await invoiceModel.exportCSV();
 
     if (invoiceList.length === 0) {
-      return res.status(404).json({ message: 'There are no records found.' });
+      return res.status(404).json({ message: "There are no records found." });
     }
 
     const doc = new PDFDocument();
-    const today = `${new Date().toISOString().slice(0, 10)}_${new Date().getTime()}`;
+    const today = `${new Date()
+      .toISOString()
+      .slice(0, 10)}_${new Date().getTime()}`;
     const filePath = `${today}_invoicelist.pdf`;
 
     const stream = doc.pipe(fs.createWriteStream(filePath));
 
-    doc.font('Helvetica');
+    doc.font("Helvetica");
 
     const invoiceHeight = 100;
     const cellPadding = 5;
@@ -315,9 +345,11 @@ exports.downloadPDF = async (req, res) => {
         doc.addPage();
       }
 
-      doc.fontSize(12).text(`${invoice.invoice_no}`, { align: 'center' });
+      doc.fontSize(12).text(`${invoice.invoice_no}`, { align: "center" });
       doc.moveDown();
-      doc.fontSize(12).text(`Invoice Date: ${invoice.invoice_date}`, { align: 'center' });
+      doc
+        .fontSize(12)
+        .text(`Invoice Date: ${invoice.invoice_date}`, { align: "center" });
       doc.moveDown();
 
       const customerData = [
@@ -325,55 +357,105 @@ exports.downloadPDF = async (req, res) => {
         `Customer Name: ${invoice.customer_name}`,
         `Customer Phone: ${invoice.customer_phone}`,
         `Customer Email: ${invoice.customer_email}`,
-        `Customer Address: ${invoice.customer_address}`
+        `Customer Address: ${invoice.customer_address}`,
       ];
-      doc.fontSize(12).text(customerData.join('\n'));
+      doc.fontSize(12).text(customerData.join("\n"));
       doc.moveDown();
 
-      const tableHeaders = ['Stock ID', 'Stock Code', 'Stock Description', 'Stock Price', 'Stock Quantity', 'Amount'];
-      doc.font('Helvetica-Bold').text('Stock Items', { align: 'center' }).moveDown();
+      const tableHeaders = [
+        "Stock ID",
+        "Stock Code",
+        "Stock Description",
+        "Stock Price",
+        "Stock Quantity",
+        "Amount",
+      ];
+      doc
+        .font("Helvetica-Bold")
+        .text("Stock Items", { align: "center" })
+        .moveDown();
 
       const tableTop = doc.y;
       const cellWidth = doc.page.width / tableHeaders.length;
-      const cellHeight = invoiceHeight / (invoice.stock_items ? invoice.stock_items.length + 2 : 1);
+      const cellHeight =
+        invoiceHeight /
+        (invoice.stock_items ? invoice.stock_items.length + 2 : 1);
 
       tableHeaders.forEach((header, colIndex) => {
-        doc.rect(cellWidth * colIndex, tableTop, cellWidth, cellHeight).fillAndStroke('#CCCCCC', 'gray');
-        doc.fontSize(10).fill('black').text(header, cellWidth * colIndex + cellPadding, tableTop + cellPadding, { width: cellWidth - cellPadding * 2, align: 'center' });
+        doc
+          .rect(cellWidth * colIndex, tableTop, cellWidth, cellHeight)
+          .fillAndStroke("#CCCCCC", "gray");
+        doc
+          .fontSize(10)
+          .fill("black")
+          .text(
+            header,
+            cellWidth * colIndex + cellPadding,
+            tableTop + cellPadding,
+            { width: cellWidth - cellPadding * 2, align: "center" }
+          );
       });
 
       if (invoice.stock_items && invoice.stock_items.length > 0) {
         invoice.stock_items.forEach((item, rowIndex) => {
           const rowTop = tableTop + cellHeight + cellHeight * rowIndex;
           tableHeaders.forEach((header, colIndex) => {
-            let cellContent = item[header.toLowerCase().replace(' ', '_')] || 'N/A';
-            if (header === 'Amount') {
-              const amount = item['stock_price'] * item['stock_quantity'];
+            let cellContent =
+              item[header.toLowerCase().replace(" ", "_")] || "N/A";
+            if (header === "Amount") {
+              const amount = item["stock_price"] * item["stock_quantity"];
               cellContent = amount.toString();
               totalAmount += amount;
             }
-            doc.rect(cellWidth * colIndex, rowTop, cellWidth, cellHeight).fillAndStroke('#FFFFFF', 'gray');
-            doc.fontSize(10).fill('black').text(cellContent, cellWidth * colIndex + cellPadding, rowTop + cellPadding, { width: cellWidth - cellPadding * 2, align: 'center' });
+            doc
+              .rect(cellWidth * colIndex, rowTop, cellWidth, cellHeight)
+              .fillAndStroke("#FFFFFF", "gray");
+            doc
+              .fontSize(10)
+              .fill("black")
+              .text(
+                cellContent,
+                cellWidth * colIndex + cellPadding,
+                rowTop + cellPadding,
+                { width: cellWidth - cellPadding * 2, align: "center" }
+              );
           });
         });
 
         // Total Amount
-        const totalRowTop = tableTop + cellHeight + cellHeight * invoice.stock_items.length;
-        doc.rect(0, totalRowTop, doc.page.width, cellHeight).fillAndStroke('#CCCCCC', 'gray');
-        doc.fontSize(10).fill('black').text('Total Amount', cellPadding, totalRowTop + cellPadding, { width: cellWidth - cellPadding * 2, align: 'left' });
-        doc.fontSize(10).fill('black').text(totalAmount.toString(), cellWidth * 4 + cellPadding, totalRowTop + cellPadding, { width: cellWidth - cellPadding * 2, align: 'left' });
+        const totalRowTop =
+          tableTop + cellHeight + cellHeight * invoice.stock_items.length;
+        doc
+          .rect(0, totalRowTop, doc.page.width, cellHeight)
+          .fillAndStroke("#CCCCCC", "gray");
+        doc
+          .fontSize(10)
+          .fill("black")
+          .text("Total Amount", cellPadding, totalRowTop + cellPadding, {
+            width: cellWidth - cellPadding * 2,
+            align: "left",
+          });
+        doc
+          .fontSize(10)
+          .fill("black")
+          .text(
+            totalAmount.toString(),
+            cellWidth * 4 + cellPadding,
+            totalRowTop + cellPadding,
+            { width: cellWidth - cellPadding * 2, align: "left" }
+          );
       }
     });
 
     doc.end();
 
-    stream.on('finish', () => {
-      res.download(filePath, err => {
+    stream.on("finish", () => {
+      res.download(filePath, (err) => {
         if (err) {
           console.log(err);
-          res.status(500).json({ message: 'Error downloading PDF' });
+          res.status(500).json({ message: "Error downloading PDF" });
         } else {
-          fs.unlink(filePath, err => {
+          fs.unlink(filePath, (err) => {
             if (err) {
               console.log(err);
             }
@@ -383,10 +465,9 @@ exports.downloadPDF = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ message: 'Internal Server Error' });
+    res.status(500).json({ message: "Internal Server Error" });
   }
 };
-
 
 // Download PDF by ID
 exports.downloadPDFByID = async (req, res) => {
@@ -394,41 +475,42 @@ exports.downloadPDFByID = async (req, res) => {
   try {
     const invoice = await invoiceModel.getInvoiceById(id);
     if (!invoice) {
-      return res.status(404).json({ message: 'Invoice not found.' });
+      return res.status(404).json({ message: "Invoice not found." });
     }
 
-    const today = `${new Date().toISOString().slice(0, 10)}_${new Date().getTime()}`;
+    const today = `${new Date()
+      .toISOString()
+      .slice(0, 10)}_${new Date().getTime()}`;
     const pdfFileName = `${today}_${invoice.invoice_no}.pdf`;
-    const pdfFilePath = path.join(__dirname, '../uploads', pdfFileName);
+    const pdfFilePath = path.join(__dirname, "../uploads", pdfFileName);
 
-    if (!fs.existsSync(path.join(__dirname, '../uploads'))) {
-      fs.mkdirSync(path.join(__dirname, '../uploads'));
+    if (!fs.existsSync(path.join(__dirname, "../uploads"))) {
+      fs.mkdirSync(path.join(__dirname, "../uploads"));
     }
 
     const doc = generatePDF(invoice, pdfFilePath);
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename=${pdfFileName}`);
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `attachment; filename=${pdfFileName}`);
 
     res.download(pdfFilePath, pdfFileName, (err) => {
       if (err) {
-        res.status(200).json({ message: 'PDF downloaded successfully' });
+        res.status(200).json({ message: "PDF downloaded successfully" });
       } else {
-        console.log('PDF downloaded successfully');
+        console.log("PDF downloaded successfully");
         fs.unlinkSync(pdfFilePath);
       }
     });
   } catch (error) {
-    console.error('Error generating or downloading PDF:', error);
-    res.status(500).json({ message: 'Error processing PDF' });
+    console.error("Error generating or downloading PDF:", error);
+    res.status(500).json({ message: "Error processing PDF" });
   }
 };
 
-
 // Function to generate PDF
 function generatePDF(invoice, filePath) {
-  const doc = new PDFDocument({ size: 'A5' });
+  const doc = new PDFDocument({ size: "A5" });
   doc.pipe(fs.createWriteStream(filePath));
-  doc.font('Helvetica');
+  doc.font("Helvetica");
   const invoiceHeight = 100;
   const cellPadding = 5;
   const tableWidthPercentage = 0.7;
@@ -436,52 +518,101 @@ function generatePDF(invoice, filePath) {
   let totalAmount = 0;
   doc.fontSize(10);
 
-  doc.text('Invoice', { align: 'center' }).moveDown(2);
+  doc.text("Invoice", { align: "center" }).moveDown(2);
 
   doc.fontSize(8);
-  doc.text(`No: ${invoice.invoice_no}`, { align: 'left' });
-  doc.text(`Date: ${invoice.invoice_date}`, { align: 'right' });
-  doc.text(`Name: ${invoice.customer_name}`, { align: 'left' });
-  doc.text(`Phone: ${invoice.customer_phone}`, { align: 'right' });
-  doc.text(`Email: ${invoice.customer_email}`, { align: 'left' });
-  doc.text(`Address: ${invoice.customer_address}`, { align: 'right' });
+  doc.text(`No: ${invoice.invoice_no}`, { align: "left" });
+  doc.text(`Date: ${invoice.invoice_date}`, { align: "right" });
+  doc.text(`Name: ${invoice.customer_name}`, { align: "left" });
+  doc.text(`Phone: ${invoice.customer_phone}`, { align: "right" });
+  doc.text(`Email: ${invoice.customer_email}`, { align: "left" });
+  doc.text(`Address: ${invoice.customer_address}`, { align: "right" });
 
-
-  const tableHeaders = ['Stock ID', 'Stock Code', 'Stock Description', 'Stock Price', 'Stock Quantity', 'Amount'];
+  const tableHeaders = [
+    "Stock ID",
+    "Stock Code",
+    "Stock Description",
+    "Stock Price",
+    "Stock Quantity",
+    "Amount",
+  ];
   const tableTop = doc.y;
   const tableWidth = doc.page.width * tableWidthPercentage;
   const cellWidth = tableWidth / tableHeaders.length;
-  const cellHeight = invoiceHeight / (invoice.stock_items ? invoice.stock_items.length + 2 : 1);
+  const cellHeight =
+    invoiceHeight / (invoice.stock_items ? invoice.stock_items.length + 2 : 1);
 
   const tableLeft = (doc.page.width - tableWidth) / 2;
 
   tableHeaders.forEach((header, colIndex) => {
-    doc.rect(tableLeft + cellWidth * colIndex, tableTop, cellWidth, cellHeight).fillAndStroke('#CCCCCC', 'black');
-    doc.fontSize(8).fill('black').text(header, tableLeft + cellWidth * colIndex + cellPadding, tableTop + cellPadding, { width: cellWidth - cellPadding * 2, align: 'center' });
+    doc
+      .rect(tableLeft + cellWidth * colIndex, tableTop, cellWidth, cellHeight)
+      .fillAndStroke("#CCCCCC", "black");
+    doc
+      .fontSize(8)
+      .fill("black")
+      .text(
+        header,
+        tableLeft + cellWidth * colIndex + cellPadding,
+        tableTop + cellPadding,
+        { width: cellWidth - cellPadding * 2, align: "center" }
+      );
   });
 
   if (invoice.stock_items && invoice.stock_items.length > 0) {
     invoice.stock_items.forEach((item, rowIndex) => {
       const rowTop = tableTop + cellHeight + cellHeight * rowIndex;
       tableHeaders.forEach((header, colIndex) => {
-        let cellContent = item[header.toLowerCase().replace(' ', '_')] || 'N/A';
-        if (header === 'Amount') {
-          const amount = item['stock_price'] * item['stock_quantity'];
+        let cellContent = item[header.toLowerCase().replace(" ", "_")] || "N/A";
+        if (header === "Amount") {
+          const amount = item["stock_price"] * item["stock_quantity"];
           cellContent = amount.toString();
           totalAmount += amount;
         }
         const cellLeft = tableLeft + cellWidth * colIndex;
-        doc.rect(cellLeft, rowTop, cellWidth, cellHeight).fillAndStroke('#FFFFFF', 'black');
-        const cellOptions = { width: cellWidth - cellPadding * 2, align: 'center' };
-        doc.fontSize(8).fill('black').text(cellContent, cellLeft + cellPadding, rowTop + cellPadding, cellOptions);
+        doc
+          .rect(cellLeft, rowTop, cellWidth, cellHeight)
+          .fillAndStroke("#FFFFFF", "black");
+        const cellOptions = {
+          width: cellWidth - cellPadding * 2,
+          align: "center",
+        };
+        doc
+          .fontSize(8)
+          .fill("black")
+          .text(
+            cellContent,
+            cellLeft + cellPadding,
+            rowTop + cellPadding,
+            cellOptions
+          );
       });
     });
 
     // Total Amount
-    const totalRowTop = tableTop + cellHeight + cellHeight * invoice.stock_items.length;
-    doc.rect(tableLeft, totalRowTop, tableWidth, cellHeight).fillAndStroke('#CCCCCC', 'black');
-    doc.fontSize(8).fill('black').text('Total', tableLeft + cellWidth * 4 - cellPadding, totalRowTop + cellPadding, { width: cellWidth - cellPadding * 1, align: 'center' });
-    doc.fontSize(8).fill('black').text(totalAmount.toString(), tableLeft + cellWidth * 5 - cellPadding, totalRowTop + cellPadding, { width: cellWidth - cellPadding * 2, align: 'right' });
+    const totalRowTop =
+      tableTop + cellHeight + cellHeight * invoice.stock_items.length;
+    doc
+      .rect(tableLeft, totalRowTop, tableWidth, cellHeight)
+      .fillAndStroke("#CCCCCC", "black");
+    doc
+      .fontSize(8)
+      .fill("black")
+      .text(
+        "Total",
+        tableLeft + cellWidth * 4 - cellPadding,
+        totalRowTop + cellPadding,
+        { width: cellWidth - cellPadding * 1, align: "center" }
+      );
+    doc
+      .fontSize(8)
+      .fill("black")
+      .text(
+        totalAmount.toString(),
+        tableLeft + cellWidth * 5 - cellPadding,
+        totalRowTop + cellPadding,
+        { width: cellWidth - cellPadding * 2, align: "right" }
+      );
   }
   doc.end();
   return doc;
