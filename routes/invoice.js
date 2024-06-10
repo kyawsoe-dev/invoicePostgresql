@@ -26,7 +26,7 @@ router.delete(
 // for API
 router.get("/list", [apiVerifyToken], invoiceController.getInvoice);
 router.get("/list/all", [apiVerifyToken], invoiceController.getAllInvoice);
-router.get("/exportcsv", [apiVerifyToken], invoiceController.exportCSV);
+router.get("/exportcsv", invoiceController.exportCSV);
 router.post("/importcsv", [apiVerifyToken], invoiceController.importCSV);
 router.get("/downloadpdf", [apiVerifyToken], invoiceController.downloadPDF);
 router.get(
